@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ============================================================
+       SEO — podstawowe metadane.
+       TODO edycja: podmień tytuł/opis jeśli zmieni się nazwa miasta,
+       zakres usług albo pozycjonowana fraza główna.
+       ============================================================ -->
+  <title>FadaRepair — warsztat samochodowy Tychy | Mechanik, diagnostyka, naprawy tego samego dnia</title>
+  <meta name="description" content="FadaRepair to niezależny warsztat samochodowy w Tychach: diagnostyka komputerowa, wymiana oleju, hamulce, zawieszenie, klimatyzacja, opony i przeglądy. Auto zastępcze, kosztorys na piśmie, wycena i naprawa często tego samego dnia. Zadzwoń i umów wizytę." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.fadarepair.pl/" />
+
+  <!-- Open Graph — TODO: podmień og:image na realne zdjęcie warsztatu -->
+  <meta property="og:type" content="business.business" />
+  <meta property="og:title" content="FadaRepair — warsztat samochodowy Tychy" />
+  <meta property="og:description" content="Diagnostyka, naprawy i przeglądy w Tychach. Wycena tego samego dnia, auto zastępcze, gwarancja na usługi." />
+  <meta property="og:locale" content="pl_PL" />
+
+  <!-- Favicon — prosty inline SVG (klucz płasko-kreskowy), bez plików zewnętrznych -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='4' fill='%2314161a'/%3E%3Cpath d='M8 15.5a3.5 3.5 0 1 1 3.5-4.9l5-2.1-1 2.9-2.9 1-2.1 5a3.5 3.5 0 0 1-2.5-1.9z' fill='none' stroke='%23ff5a1f' stroke-width='1.6'/%3E%3C/svg%3E" />
+
+  <!-- Typografia: Oswald (nagłówki, kroj kondensowany o motoryzacyjnym rodowodzie),
+       Inter (tekst), JetBrains Mono (ceny, dane — jak wydruk z kwitu warsztatowego).
+       Trzy pliki, brak dodatkowych bibliotek. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/styles.css" />
+
+  <!-- ============================================================
+       Dane strukturalne Schema.org (AutoRepair / LocalBusiness).
+       TODO edycja: telefon, dokładny adres, NIP i godziny to dane
+       przykładowe — podmień na prawdziwe przed publikacją strony,
+       inaczej Google pokaże błędne informacje w wynikach wyszukiwania.
+       ============================================================ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "AutoRepair",
+    "name": "FadaRepair",
+    "image": "https://www.fadarepair.pl/assets/img/warsztat-fadarepair-tychy.jpg",
+    "telephone": "+48000000000",
+    "priceRange": "$$",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "ul. Przykładowa 1",
+      "addressLocality": "Tychy",
+      "postalCode": "43-100",
+      "addressCountry": "PL"
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        "opens": "07:00",
+        "closes": "15:00"
+      }
+    ],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "128"
+    },
+    "areaServed": "Tychy",
+    "url": "https://www.fadarepair.pl/"
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Przejdź do treści</a>
+
+  <!-- Sprite z ikonami — jedna definicja, wielokrotne użycie przez <use>.
+       Brak biblioteki ikon: proste kreskowe SVG dopasowane do stylu strony. -->
+  <svg xmlns="http://www.w3.org/2000/svg" class="visually-hidden" aria-hidden="true">
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M4 5c0-.6.4-1 1-1h3l2 5-2 1.5c1 2.3 2.7 4 5 5L14.5 14l5 2v3c0 .6-.4 1-1 1h-1C9.5 20 4 14.5 4 6.5V5z"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="1.5"/><path d="M4 9.5h16M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></symbol>
+    <symbol id="i-diagnostic" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M9 4v3M15 4v3M9 17v3M15 17v3M4 9h3M4 15h3M17 9h3M17 15h3"/></symbol>
+    <symbol id="i-oil" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-brake" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/><path d="M12 4v3M12 17v3M20 12h-3M7 12H4"/></symbol>
+    <symbol id="i-suspension" viewBox="0 0 24 24"><path d="M8 3v4M16 3v4M8 3c0 2 8 2 8 0M8 7c0 2 8 2 8 0M8 11c0 2 8 2 8 0M8 15c0 2 8 2 8 0M12 19v2"/></symbol>
+    <symbol id="i-ac" viewBox="0 0 24 24"><path d="M12 3v18M4.5 6.5l15 11M19.5 6.5l-15 11M12 3l-2 2M12 3l2 2M12 21l-2-2M12 21l2-2"/></symbol>
+    <symbol id="i-tire" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 4v3M12 17v3M20 12h-3M7 12H4M17.7 6.3l-2.2 2.2M8.5 15.5l-2.2 2.2M17.7 17.7l-2.2-2.2M8.5 8.5L6.3 6.3"/></symbol>
+    <symbol id="i-inspection" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="1.5"/><path d="M9 3h6v2H9zM8 12l2.5 2.5L16 9"/></symbol>
+    <symbol id="i-electric" viewBox="0 0 24 24"><path d="M13 3L6 14h5l-1 7 7-11h-5l1-7z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-swap" viewBox="0 0 24 24"><path d="M5 16V9a1 1 0 0 1 1-1h9l3 3v5" /><circle cx="8" cy="16.5" r="1.7"/><circle cx="16" cy="16.5" r="1.7"/><path d="M4 12h11"/></symbol>
+    <symbol id="i-pickup" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11A6.5 6.5 0 0 1 18.5 10c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M9 12h6M9 15.5h6M9 8.5h3"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 .8-4.4 4.2 1.1 6-5.3-3-5.3 3 1.1-6L3.4 9.9l6-.8z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.4"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-parking" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9.5 16V8h3a2.7 2.7 0 0 1 0 5.4h-3"/></symbol>
+    <symbol id="i-fb" viewBox="0 0 24 24"><path d="M14 21v-7h2.4l.4-3H14V9c0-.9.2-1.5 1.5-1.5H17V5c-.3 0-1.2-.1-2.3-.1-2.3 0-3.7 1.4-3.7 3.9V11H8.5v3H11v7h3z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-ig" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="12" cy="12" r="3.5"/><circle cx="16.6" cy="7.4" r="1"/></symbol>
+  </svg>
+
+  <!-- ============================================================
+       HEADER — sticky, telefon i CTA zawsze widoczne.
+       ============================================================ -->
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="#main" class="logo">
+        <span>FADA</span>REPAIR<small>&nbsp;· Tychy</small>
+      </a>
+
+      <nav class="main-nav" aria-label="Nawigacja główna">
+        <ul>
+          <li><a href="#uslugi">Usługi</a></li>
+          <li><a href="#dlaczego-my">Atuty</a></li>
+          <li><a href="#galeria">Galeria</a></li>
+          <li><a href="#opinie">Opinie</a></li>
+          <li><a href="#dojazd">Dojazd</a></li>
+          <li><a href="#kontakt">Kontakt</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <!-- TODO edycja: podmień numer telefonu (obecnie placeholder) -->
+        <a class="phone-link phone-link--header" href="tel:+48000000000" aria-label="Zadzwoń do FadaRepair">
+          <svg class="icon" aria-hidden="true"><use href="#i-phone"/></svg>
+          <span class="phone-link__number">+48 000 000 000</span>
+        </a>
+        <a class="btn btn--primary" href="#kontakt"><span class="btn-label-full">Umów wizytę</span><span class="btn-label-short">Umów</span></a>
+        <button class="nav-toggle" aria-label="Otwórz menu" aria-expanded="false" aria-controls="mobile-nav">
+          <svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <nav id="mobile-nav" class="mobile-nav" aria-label="Nawigacja mobilna">
+      <ul>
+        <li><a href="#uslugi">Usługi</a></li>
+        <li><a href="#dlaczego-my">Dlaczego my</a></li>
+        <li><a href="#galeria">Galeria</a></li>
+        <li><a href="#opinie">Opinie</a></li>
+        <li><a href="#dojazd">Dojazd i godziny</a></li>
+        <li><a href="#kontakt">Kontakt</a></li>
+        <li><a href="tel:+48000000000">📞 +48 000 000 000</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- ============================================================
+         HERO — odpowiada na "co naprawiacie / czy mogę zaufać / jak szybko"
+         w pierwszych sekundach.
+         ============================================================ -->
+    <section class="hero">
+      <div class="container hero__grid">
+        <div>
+          <div class="hero__rating">
+            <span class="stars" aria-hidden="true">★★★★★</span>
+            <span><strong>4,9/5</strong> na Google · 128 opinii*</span>
+          </div>
+
+          <h1>Zapaliła się kontrolka silnika? <mark>Sprawdzimy to dziś.</mark></h1>
+
+          <p class="hero__subtitle">
+            FadaRepair to niezależny warsztat samochodowy w Tychach. Diagnostyka
+            komputerowa, naprawy mechaniczne i przeglądy — z kosztorysem na
+            piśmie, zanim zaczniemy naprawę.
+          </p>
+
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="tel:+48000000000">
+              <svg class="icon" aria-hidden="true"><use href="#i-phone"/></svg>
+              Zadzwoń teraz
+            </a>
+            <a class="btn btn--ghost" href="#kontakt">
+              <svg class="icon" aria-hidden="true"><use href="#i-calendar"/></svg>
+              Umów wizytę online
+            </a>
+          </div>
+        </div>
+
+        <!-- Element sygnaturowy: "kwit zlecenia" — buduje zaufanie i pokazuje
+             tempo obsługi w formie znanej z warsztatu, nie ze stocka. -->
+        <div class="work-order" aria-label="Przykładowy przebieg zlecenia w FadaRepair">
+          <div class="work-order__head">
+            <span>Zlecenie warsztatowe</span>
+            <span class="work-order__id">#FR-2026-118</span>
+          </div>
+          <dl class="work-order__list">
+            <div class="work-order__row">
+              <dt>Diagnostyka</dt>
+              <dd>tego samego dnia</dd>
+            </div>
+            <div class="work-order__row">
+              <dt>Kosztorys</dt>
+              <dd>pisemny, przed naprawą</dd>
+            </div>
+            <div class="work-order__row">
+              <dt>Części</dt>
+              <dd>oryginalne / OE do wyboru</dd>
+            </div>
+            <div class="work-order__row">
+              <dt>Na czas naprawy</dt>
+              <dd>auto zastępcze</dd>
+            </div>
+            <div class="work-order__row">
+              <dt>Gwarancja</dt>
+              <dd>na wykonaną usługę</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <div class="hazard-divider" role="presentation"></div>
+
+    <!-- ============================================================
+         PASEK ZAUFANIA
+         TODO edycja: liczby (lata, liczba aut, opinie) to placeholdery —
+         podmień na faktyczne dane warsztatu.
+         ============================================================ -->
+    <section class="trust-bar" aria-label="Wyróżniki FadaRepair">
+      <div class="container trust-bar__grid">
+        <div class="trust-bar__item">
+          <span class="trust-bar__number">12 lat*</span>
+          <span class="trust-bar__label">doświadczenia</span>
+        </div>
+        <div class="trust-bar__item">
+          <span class="trust-bar__number">6000+*</span>
+          <span class="trust-bar__label">obsłużonych aut</span>
+        </div>
+        <div class="trust-bar__item">
+          <span class="trust-bar__number">12 mies.*</span>
+          <span class="trust-bar__label">gwarancji na usługi</span>
+        </div>
+        <div class="trust-bar__item">
+          <span class="trust-bar__number">4,9/5*</span>
+          <span class="trust-bar__label">ocena Google (128 opinii)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         USŁUGI — z widełkami cenowymi.
+         TODO edycja: wszystkie ceny to orientacyjne widełki rynkowe —
+         potwierdź i podmień na faktyczny cennik warsztatu.
+         ============================================================ -->
+    <section id="uslugi" class="section">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Zakres usług</span>
+          <h2>Co naprawiamy</h2>
+          <p>Pełny zakres napraw mechanicznych — od szybkiej diagnostyki po większe naprawy zawieszenia. Poniżej orientacyjne ceny startowe*.</p>
+        </div>
+
+        <div class="services-grid">
+          <article class="service-card">
+            <div class="service-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-diagnostic"/></svg></div>
+            <h3>Diagnostyka komputerowa</h3>
+            <p>Odczyt i kasowanie błędów, sprawdzenie przyczyny zapalonej kontrolki silnika.</p>
+            <div class="service-card__price"><span class="label">Cena</span><span class="value">od 100 zł*</span></div>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-oil"/></svg></div>
+            <h3>Wymiana oleju i filtrów</h3>
+            <p>Olej silnikowy dobrany do specyfikacji producenta, filtr oleju i przegląd poziomów płynów.</p>
+            <div class="service-card__price"><span class="label">Cena</span><span class="value">od 150 zł*</span></div>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-brake"/></svg></div>
+            <h3>Hamulce</h3>
+            <p>Klocki, tarcze, płyn hamulcowy — z pomiarem zużycia i jazdą próbną po naprawie.</p>
+            <div class="service-card__price"><span class="label">Cena</span><span class="value">od 200 zł*</span></div>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-suspension"/></svg></div>
+            <h3>Zawieszenie</h3>
+            <p>Amortyzatory, tuleje, wahacze — diagnostyka źródła stuków i bicia kierownicy.</p>
+            <div class="service-card__price"><span class="label">Cena</span><span class="value">od 250 zł*</span></div>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-ac"/></svg></div>
+            <h3>Klimatyzacja</h3>
+            <p>Uzupełnienie i odgrzybianie układu klimatyzacji, kontrola szczelności.</p>
+            <div class="service-card__price"><span class="label">Cena</span><span class="value">od 120 zł*</span></div>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-tire"/></svg></div>
+            <h3>Opony i sezonowa wymiana</h3>
+            <p>Przezuwanie, wyważanie kół, sezonowy hotel na opony.</p>
+            <div class="service-card__price"><span class="label">Cena</span><span class="value">od 80 zł*</span></div>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-inspection"/></svg></div>
+            <h3>Przeglądy okresowe</h3>
+            <p>Kompleksowy przegląd stanu technicznego przed badaniem lub trasą.</p>
+            <div class="service-card__price"><span class="label">Cena</span><span class="value">od 100 zł*</span></div>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-electric"/></svg></div>
+            <h3>Elektryka i elektronika</h3>
+            <p>Usterki instalacji, czujniki, oświetlenie — wycena po diagnostyce.</p>
+            <div class="service-card__price"><span class="label">Cena</span><span class="value">wycena indywidualna</span></div>
+          </article>
+        </div>
+
+        <p class="services-note">* Ceny orientacyjne — ostateczny koszt zależy od marki, modelu i zakresu naprawy. Zawsze przedstawiamy kosztorys pisemny przed rozpoczęciem prac.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         DLACZEGO MY — konkretne przewagi, nie ogólniki.
+         ============================================================ -->
+    <section id="dlaczego-my" class="section section--alt">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Dlaczego FadaRepair</span>
+          <h2>Konkrety, nie obietnice</h2>
+        </div>
+
+        <div class="why-grid">
+          <div class="why-card">
+            <div class="why-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-swap"/></svg></div>
+            <div>
+              <h3>Auto zastępcze</h3>
+              <p>Na czas dłuższej naprawy zapewniamy zastępczy samochód, żebyś nie został bez kół.</p>
+            </div>
+          </div>
+
+          <div class="why-card">
+            <div class="why-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-pickup"/></svg></div>
+            <div>
+              <h3>Odbiór auta z Tychych i okolicy</h3>
+              <p>Nie musisz jechać z awarią — odbieramy samochód spod domu lub pracy.</p>
+            </div>
+          </div>
+
+          <div class="why-card">
+            <div class="why-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg></div>
+            <div>
+              <h3>Diagnostyka tego samego dnia</h3>
+              <p>Większość usterek diagnozujemy w dniu przyjazdu — bez tygodni oczekiwania.</p>
+            </div>
+          </div>
+
+          <div class="why-card">
+            <div class="why-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-doc"/></svg></div>
+            <div>
+              <h3>Kosztorys na piśmie</h3>
+              <p>Znasz cenę, zanim zaczniemy naprawę — żadnych niespodzianek na fakturze.</p>
+            </div>
+          </div>
+
+          <div class="why-card">
+            <div class="why-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-oil"/></svg></div>
+            <div>
+              <h3>Części — Twój wybór</h3>
+              <p>Oryginalne albo jakościowe zamienniki OE — decydujesz Ty, my doradzamy.</p>
+            </div>
+          </div>
+
+          <div class="why-card">
+            <div class="why-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg></div>
+            <div>
+              <h3>Gwarancja na usługi</h3>
+              <p>Każda wykonana naprawa objęta jest gwarancją — szczegóły ustalamy przy odbiorze.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         GALERIA — miejsce na prawdziwe zdjęcia (ważniejsze niż stock).
+         TODO edycja: zamień wszystkie .photo-placeholder na <img>
+         z prawdziwymi zdjęciami warsztatu (patrz etykiety w każdym bloku).
+         ============================================================ -->
+    <section id="galeria" class="section">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Zza kulis</span>
+          <h2>Warsztat, jaki jest naprawdę</h2>
+          <p>Realne zdjęcia stanowiska i pracy — nie grafiki ze stocka.</p>
+        </div>
+
+        <div class="gallery-grid">
+          <div class="photo-placeholder">
+            <span class="photo-placeholder__label"><strong>Zdjęcie 1 / 6</strong>Stanowisko diagnostyczne — komputer i podnośnik</span>
+          </div>
+          <div class="photo-placeholder">
+            <span class="photo-placeholder__label"><strong>Zdjęcie 2 / 6</strong>Kanał przeglądowy / podnośnik od spodu</span>
+          </div>
+          <div class="photo-placeholder">
+            <span class="photo-placeholder__label"><strong>Zdjęcie 3 / 6</strong>Mechanik przy pracy — wymiana oleju</span>
+          </div>
+
+          <div class="gallery-pair" aria-label="Zdjęcie przed i po naprawie hamulców">
+            <span class="gallery-pair__tag gallery-pair__tag--before">Przed</span>
+            <span class="gallery-pair__tag gallery-pair__tag--after">Po</span>
+            <div class="photo-placeholder">
+              <span class="photo-placeholder__label">Zużyte klocki i tarcza hamulcowa</span>
+            </div>
+            <div class="photo-placeholder">
+              <span class="photo-placeholder__label">Nowe klocki po wymianie</span>
+            </div>
+          </div>
+
+          <div class="photo-placeholder">
+            <span class="photo-placeholder__label"><strong>Zdjęcie 5 / 6</strong>Zespół FadaRepair</span>
+          </div>
+          <div class="photo-placeholder photo-placeholder--wide">
+            <span class="photo-placeholder__label"><strong>Zdjęcie 6 / 6</strong>Poczekalnia / recepcja dla klienta</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         OPINIE
+         TODO edycja: cytaty przykładowe — podmień na prawdziwe opinie
+         (np. skopiowane z wizytówki Google, za zgodą klientów).
+         ============================================================ -->
+    <section id="opinie" class="section section--alt">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Opinie klientów</span>
+          <h2>Co mówią kierowcy z Tych</h2>
+        </div>
+
+        <div class="reviews-grid">
+          <article class="review-card">
+            <div class="stars" aria-hidden="true">★★★★★</div>
+            <blockquote>„Kontrolka silnika zapaliła się rano, po południu miałem gotową diagnozę i naprawę. Szybko i bez naciągania na dodatkowe usługi.”</blockquote>
+            <footer>Marek K. — Škoda Octavia*</footer>
+          </article>
+
+          <article class="review-card">
+            <div class="stars" aria-hidden="true">★★★★★</div>
+            <blockquote>„Dostałam kosztorys na piśmie, zanim cokolwiek zaczęli robić. Żadnych niespodzianek przy odbiorze auta.”</blockquote>
+            <footer>Agnieszka W. — Toyota Yaris*</footer>
+          </article>
+
+          <article class="review-card">
+            <div class="stars" aria-hidden="true">★★★★★</div>
+            <blockquote>„Auto zastępcze na czas naprawy zawieszenia uratowało mi tydzień pracy. Polecam, kontakt telefoniczny bardzo sprawny.”</blockquote>
+            <footer>Tomasz S. — VW Passat*</footer>
+          </article>
+        </div>
+
+        <div class="reviews-cta">
+          <span class="stars" aria-hidden="true"><svg class="icon" style="color:var(--accent-2)"><use href="#i-star"/></svg></span>
+          <span><strong>4,9/5</strong> na podstawie 128 opinii w Google*</span>
+          <!-- TODO edycja: podmień na realny link do wizytówki Google Firmy -->
+          <a class="btn btn--ghost" href="https://www.google.com/maps/search/?api=1&query=FadaRepair+Tychy" target="_blank" rel="noopener">Zobacz wszystkie opinie</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         MAPA I DOJAZD
+         TODO edycja: adres i mapa to placeholdery wskazujące na Tychy —
+         po otrzymaniu dokładnego adresu podmień link mapy na konkretny punkt.
+         ============================================================ -->
+    <section id="dojazd" class="section">
+      <div class="container map-grid">
+        <div class="map-embed">
+          <iframe
+            src="https://www.google.com/maps?q=Tychy&output=embed"
+            title="Mapa dojazdu do FadaRepair w Tychach"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+
+        <div class="info-card">
+          <h3>Godziny otwarcia</h3>
+          <table class="hours-table">
+            <tbody>
+              <tr data-day="1"><td>Poniedziałek</td><td>7:00–15:00</td></tr>
+              <tr data-day="2"><td>Wtorek</td><td>7:00–15:00</td></tr>
+              <tr data-day="3"><td>Środa</td><td>7:00–15:00</td></tr>
+              <tr data-day="4"><td>Czwartek</td><td>7:00–15:00</td></tr>
+              <tr data-day="5"><td>Piątek</td><td>7:00–15:00</td></tr>
+              <tr data-day="6"><td>Sobota</td><td>Zamknięte*</td></tr>
+              <tr data-day="0"><td>Niedziela</td><td>Zamknięte</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Adres</h3>
+          <address>
+            ul. Przykładowa 1*, 43-100 Tychy<br />
+            <a href="https://www.google.com/maps/search/?api=1&query=FadaRepair+Tychy" target="_blank" rel="noopener">Otwórz w Google Maps →</a>
+          </address>
+
+          <p class="info-note">
+            <svg class="icon" aria-hidden="true"><use href="#i-parking"/></svg>
+            <span>Bezpłatny parking dla klientów przy warsztacie*.</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="hazard-divider" role="presentation"></div>
+
+    <!-- ============================================================
+         FORMULARZ KONTAKTOWY / UMÓW WIZYTĘ
+         TODO wdrożeniowe: formularz waliduje dane w przeglądarce, ale
+         NIE wysyła jeszcze e-maila — patrz komentarz w assets/js/main.js
+         przy sekcji "wysyłka". Trzeba podpiąć realny endpoint.
+         ============================================================ -->
+    <section id="kontakt" class="section section--alt">
+      <div class="container contact-grid">
+        <div>
+          <div class="section-head">
+            <span class="eyebrow">Umów wizytę</span>
+            <h2>Zostaw numer — oddzwonimy</h2>
+            <p>Wypełnij krótki formularz, a potwierdzimy termin telefonicznie. Możesz też zadzwonić bezpośrednio.</p>
+          </div>
+
+          <form id="contact-form" class="contact-form" novalidate>
+            <div class="form-row form-row--two">
+              <div class="form-field">
+                <label for="f-name">Imię i nazwisko <span class="req">*</span></label>
+                <input type="text" id="f-name" name="name" required autocomplete="name" />
+                <span class="form-error" id="f-name-error"></span>
+              </div>
+              <div class="form-field">
+                <label for="f-phone">Telefon <span class="req">*</span></label>
+                <input type="tel" id="f-phone" name="phone" required autocomplete="tel" placeholder="np. 500 100 200" />
+                <span class="form-error" id="f-phone-error"></span>
+              </div>
+            </div>
+
+            <div class="form-row form-row--two">
+              <div class="form-field">
+                <label for="f-car">Marka i model auta <span class="req">*</span></label>
+                <input type="text" id="f-car" name="car" required placeholder="np. Škoda Octavia 2015" />
+                <span class="form-error" id="f-car-error"></span>
+              </div>
+              <div class="form-field">
+                <label for="f-date">Preferowany termin</label>
+                <input type="text" id="f-date" name="preferred_date" placeholder="np. jutro rano" />
+                <span class="form-error" id="f-date-error"></span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label for="f-message">Opis problemu <span class="req">*</span></label>
+                <textarea id="f-message" name="message" required placeholder="Co się dzieje z autem? Np. zapalona kontrolka silnika, dziwny dźwięk przy hamowaniu…"></textarea>
+                <span class="form-error" id="f-message-error"></span>
+              </div>
+            </div>
+
+            <label class="form-consent" for="f-consent">
+              <input type="checkbox" id="f-consent" name="consent" required />
+              <span>Wyrażam zgodę na kontakt telefoniczny w celu ustalenia terminu wizyty, zgodnie z <a href="polityka-prywatnosci.html">polityką prywatności</a>. <span class="req">*</span></span>
+            </label>
+
+            <button type="submit" class="btn btn--primary btn--block">Wyślij zgłoszenie</button>
+
+            <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <div class="contact-side">
+          <div class="contact-callout">
+            <span class="eyebrow" style="margin-bottom:0.4rem">Wolisz zadzwonić?</span>
+            <p>Odbieramy w godzinach otwarcia — bez infolinii i automatów.</p>
+            <!-- TODO edycja: podmień numer telefonu (placeholder) -->
+            <a class="phone-link" href="tel:+48000000000">
+              <svg class="icon" aria-hidden="true"><use href="#i-phone"/></svg>
+              +48 000 000 000
+            </a>
+          </div>
+
+          <div class="info-card">
+            <h3>Certyfikaty i standardy</h3>
+            <div class="certs-grid">
+              <!-- Przykładowe odznaki certyfikatów — DO POTWIERDZENIA / PODMIANY.
+                   Usuń każdą, do której warsztat faktycznie nie ma uprawnień. -->
+              <div class="cert-badge"><strong>Bosch Car Service</strong>przykładowa odznaka sieci*</div>
+              <div class="cert-badge"><strong>Diagnostyka OBD</strong>sprzęt autoryzowany*</div>
+              <div class="cert-badge"><strong>Gwarancja pisemna</strong>na usługi serwisowe*</div>
+              <div class="cert-badge"><strong>OC warsztatu</strong>ubezpieczenie działalności*</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================
+       STOPKA
+       TODO edycja: NIP, social media i dane rejestrowe to placeholdery.
+       ============================================================ -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>FadaRepair</h4>
+          <p>Warsztat samochodowy w Tychach — diagnostyka, naprawy mechaniczne i przeglądy.</p>
+          <div class="footer-social">
+            <!-- TODO edycja: podmień na realne linki do profili -->
+            <a href="#" aria-label="FadaRepair na Facebooku"><svg class="icon" aria-hidden="true"><use href="#i-fb"/></svg></a>
+            <a href="#" aria-label="FadaRepair na Instagramie"><svg class="icon" aria-hidden="true"><use href="#i-ig"/></svg></a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4>Mapa strony</h4>
+          <ul>
+            <li><a href="#uslugi">Usługi</a></li>
+            <li><a href="#dlaczego-my">Dlaczego my</a></li>
+            <li><a href="#galeria">Galeria</a></li>
+            <li><a href="#opinie">Opinie</a></li>
+            <li><a href="#dojazd">Dojazd i godziny</a></li>
+            <li><a href="#kontakt">Kontakt</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Kontakt</h4>
+          <ul>
+            <li><a href="tel:+48000000000">+48 000 000 000*</a></li>
+            <li><a href="https://www.google.com/maps/search/?api=1&query=FadaRepair+Tychy" target="_blank" rel="noopener">ul. Przykładowa 1*, Tychy</a></li>
+            <li>Pon–Pt: 7:00–15:00</li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Dane firmy</h4>
+          <ul>
+            <li>FadaRepair*</li>
+            <li>NIP: 000-000-00-00*</li>
+            <li><a href="polityka-prywatnosci.html">Polityka prywatności</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© <span id="current-year">2026</span> FadaRepair. Wszystkie prawa zastrzeżone.</span>
+        <span>* Dane oznaczone gwiazdką to przykładowe treści do potwierdzenia lub podmiany przed publikacją strony.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Sticky CTA — widoczny tylko na mobile (patrz media query w CSS) -->
+  <div class="sticky-cta">
+    <a class="call" href="tel:+48000000000">📞 Zadzwoń teraz</a>
+    <a class="book" href="#kontakt">Umów wizytę</a>
+  </div>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
