@@ -663,6 +663,59 @@ a{ color: var(--teal); }
    ========================================================================= */
 
 /* ---------------------------------------------------------------------
+   0. BEZPIECZNY DOSTĘP DO LOCALSTORAGE
+   Niektóre środowiska (podglądy w sandboxie, tryb prywatny, otwarcie
+   pliku bez uprawnień do zapisu) blokują localStorage i rzucają wyjątek
+   przy pierwszym dotknięciu. Bez zabezpieczenia to wywala CAŁY skrypt
+   zanim podłączą się jakiekolwiek przyciski — objawia się jako "nic się
+   nie da kliknąć". Poniższy wrapper zawsze działa: próbuje localStorage,
+   a w razie błędu po cichu przechodzi na pamięć w JS (dane przeżyją do
+   zamknięcia karty, ale appka zostaje w pełni klikalna).
+   --------------------------------------------------------------------- */
+const memoryFallbackStore = {};
+let localStorageAvailable = true;
+try {
+  const testKey = '__nordpath_test__';
+  localStorage.setItem(testKey, '1');
+  localStorage.removeItem(testKey);
+} catch(e){
+  localStorageAvailable = false;
+}
+
+function safeJSONGet(key){
+  try {
+    const raw = localStorageAvailable ? localStorage.getItem(key) : memoryFallbackStore[key];
+    return raw ? JSON.parse(raw) : null;
+  } catch(e){
+    console.warn('NordPath: nie udało się odczytać', key, e);
+    return null;
+  }
+}
+function safeJSONSet(key, value){
+  const raw = JSON.stringify(value);
+  try {
+    if(localStorageAvailable){ localStorage.setItem(key, raw); return; }
+  } catch(e){
+    console.warn('NordPath: zapis do localStorage nieudany, przechodzę na pamięć tymczasową.', e);
+    localStorageAvailable = false;
+  }
+  memoryFallbackStore[key] = raw;
+}
+
+/* Globalny handler błędów — zamiast cichej "martwej" strony pokazujemy baner. */
+window.addEventListener('error', (e) => {
+  showFatalErrorBanner(e.message);
+});
+function showFatalErrorBanner(message){
+  if(document.getElementById('fatalErrorBanner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'fatalErrorBanner';
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:999;background:#d64545;color:#fff;padding:.7rem 1rem;font:14px system-ui;text-align:center;';
+  banner.textContent = '⚠️ Wystąpił błąd aplikacji: ' + message + ' — odśwież stronę. Jeśli problem się powtarza, otwórz plik bezpośrednio w przeglądarce (nie w podglądzie/iframe).';
+  document.body.prepend(banner);
+}
+
+/* ---------------------------------------------------------------------
    1. STAŁE / KLUCZE LOCALSTORAGE
    --------------------------------------------------------------------- */
 const STORAGE_KEYS = {
@@ -745,11 +798,11 @@ let state = {
 };
 
 function loadState(){
-  state.cv = JSON.parse(localStorage.getItem(STORAGE_KEYS.CV)) || defaultCv();
-  state.checklist = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHECKLIST)) || structuredCloneChecklist();
-  state.tracker = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRACKER)) || [];
-  state.messages = JSON.parse(localStorage.getItem(STORAGE_KEYS.MESSAGES)) || [];
-  state.sentEmails = JSON.parse(localStorage.getItem(STORAGE_KEYS.SENT_EMAILS)) || [];
+  state.cv = safeJSONGet(STORAGE_KEYS.CV) || defaultCv();
+  state.checklist = safeJSONGet(STORAGE_KEYS.CHECKLIST) || structuredCloneChecklist();
+  state.tracker = safeJSONGet(STORAGE_KEYS.TRACKER) || [];
+  state.messages = safeJSONGet(STORAGE_KEYS.MESSAGES) || [];
+  state.sentEmails = safeJSONGet(STORAGE_KEYS.SENT_EMAILS) || [];
 }
 function structuredCloneChecklist(){
   return DEFAULT_CHECKLIST.map((cat,ci) => ({
@@ -766,11 +819,11 @@ function defaultCv(){
     languages: [],
   };
 }
-function saveCv(){ localStorage.setItem(STORAGE_KEYS.CV, JSON.stringify(state.cv)); renderDashboard(); }
-function saveChecklist(){ localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(state.checklist)); renderDashboard(); }
-function saveTracker(){ localStorage.setItem(STORAGE_KEYS.TRACKER, JSON.stringify(state.tracker)); renderDashboard(); }
-function saveMessages(){ localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(state.messages)); renderDashboard(); renderNavBadge(); }
-function saveSentEmails(){ localStorage.setItem(STORAGE_KEYS.SENT_EMAILS, JSON.stringify(state.sentEmails)); }
+function saveCv(){ safeJSONSet(STORAGE_KEYS.CV, state.cv); renderDashboard(); }
+function saveChecklist(){ safeJSONSet(STORAGE_KEYS.CHECKLIST, state.checklist); renderDashboard(); }
+function saveTracker(){ safeJSONSet(STORAGE_KEYS.TRACKER, state.tracker); renderDashboard(); }
+function saveMessages(){ safeJSONSet(STORAGE_KEYS.MESSAGES, state.messages); renderDashboard(); renderNavBadge(); }
+function saveSentEmails(){ safeJSONSet(STORAGE_KEYS.SENT_EMAILS, state.sentEmails); }
 
 /* ---------------------------------------------------------------------
    TOAST — lekki system powiadomień zastępujący alert()
@@ -1175,7 +1228,7 @@ document.getElementById('generateLetterBtn').addEventListener('click', () => {
   const jobDesc = document.getElementById('letterJobDesc').value.trim();
   const template = buildCoverLetterText(company, jobDesc);
   document.getElementById('letterOutput').textContent = template;
-  localStorage.setItem(STORAGE_KEYS.LETTER, template);
+  safeJSONSet(STORAGE_KEYS.LETTER, template);
   showToast('List motywacyjny wygenerowany.', 'success');
 });
 
@@ -1592,7 +1645,12 @@ function init(){
   switchView('dashboard');
 }
 
-init();
+try {
+  init();
+} catch(e){
+  console.error('NordPath init failed:', e);
+  showFatalErrorBanner(e.message);
+}
 </script>
 </body>
 </html>
