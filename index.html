@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NordPath — Twoja droga do pracy w Norwegii</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* =========================================================================
+   NordPath DEMO — pojedynczy plik (HTML+CSS+JS), bez backendu.
+   Dane trzymane w localStorage. Prototyp do wglądu — nie wersja produkcyjna.
+   ========================================================================= */
+
+:root{
+  --navy: #1a3a5c;
+  --navy-dark: #102842;
+  --navy-light: #2c5480;
+  --teal: #2a9d8f;
+  --red: #d64545;
+  --bg: #f5f7fa;
+  --white: #ffffff;
+  --ink: #1c2b3a;
+  --ink-soft: #52697d;
+  --border: #e1e8ef;
+  --radius: 10px;
+  --shadow: 0 2px 10px rgba(20,40,60,.06);
+  --shadow-lg: 0 12px 32px rgba(20,40,60,.16);
+  --sidebar-w: 250px;
+}
+
+*,*::before,*::after{ box-sizing: border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+h1,h2,h3,h4{ margin: 0 0 .4em; font-weight: 700; color: var(--navy); }
+p{ margin:0 0 .8em; line-height:1.55; }
+button{ font-family:inherit; cursor:pointer; }
+input,select,textarea{ font-family:inherit; font-size: 14px; }
+a{ color: var(--teal); }
+::-webkit-scrollbar{ width:8px; height:8px; }
+::-webkit-scrollbar-thumb{ background:#c7d3dd; border-radius:8px; }
+
+/* ---------- Layout shell ---------- */
+#app{ display:flex; min-height:100vh; }
+
+.sidebar{
+  width: var(--sidebar-w);
+  flex-shrink:0;
+  background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
+  color: #dce7f2;
+  display:flex;
+  flex-direction:column;
+  position: sticky;
+  top:0;
+  height:100vh;
+  z-index: 50;
+}
+.sidebar .brand{
+  display:flex; align-items:center; gap:.6rem;
+  padding: 1.3rem 1.2rem;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.sidebar .brand .logo{ font-size:1.5rem; }
+.sidebar .brand .name{ font-weight:800; font-size:1.15rem; color:#fff; letter-spacing:.3px; }
+.sidebar .brand .name small{ display:block; font-weight:400; font-size:.68rem; color:#9db6cd; letter-spacing:.5px; }
+
+.nav-list{ list-style:none; margin:0; padding: .6rem; flex:1; overflow-y:auto; }
+.nav-item{
+  display:flex; align-items:center; gap:.75rem;
+  padding:.7rem .8rem; margin-bottom:.15rem;
+  border-radius:8px; color:#c9d9e8; font-size:.92rem; font-weight:500;
+  cursor:pointer; transition: background .15s, color .15s;
+  border:none; background:transparent; width:100%; text-align:left;
+}
+.nav-item .ic{ font-size:1.1rem; width:1.4rem; text-align:center; }
+.nav-item:hover{ background: rgba(255,255,255,.08); color:#fff; }
+.nav-item.active{ background: var(--teal); color:#fff; box-shadow: var(--shadow); }
+
+.sidebar-footer{
+  padding: 1rem 1.2rem; font-size:.72rem; color:#82a0b9;
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+
+.topbar{
+  display:none;
+  align-items:center; justify-content:space-between;
+  background: var(--navy); color:#fff;
+  padding: .8rem 1rem; position:sticky; top:0; z-index:40;
+}
+.topbar .name{ font-weight:800; }
+.topbar button{
+  background:transparent; border:1px solid rgba(255,255,255,.4); color:#fff;
+  border-radius:8px; padding:.35rem .6rem; font-size:1rem;
+}
+
+.content{ flex:1; min-width:0; padding: 1.6rem 2rem 3rem; }
+
+.view{ display:none; animation: fadeIn .18s ease; }
+.view.active{ display:block; }
+@keyframes fadeIn{ from{ opacity:0; transform: translateY(4px);} to{opacity:1; transform:none;} }
+
+.view-header{ margin-bottom: 1.4rem; }
+.view-header p.subtitle{ color: var(--ink-soft); margin:0; }
+
+.card{
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem 1.4rem;
+}
+
+.btn{
+  display:inline-flex; align-items:center; gap:.4rem;
+  background: var(--navy); color:#fff; border:none;
+  padding:.55rem 1.05rem; border-radius:8px; font-weight:600; font-size:.88rem;
+  transition: background .15s, transform .1s;
+}
+.btn:hover{ background: var(--navy-light); }
+.btn:active{ transform: scale(.98); }
+.btn.secondary{ background:#fff; color:var(--navy); border:1px solid var(--border); }
+.btn.secondary:hover{ background:#eef2f6; }
+.btn.teal{ background: var(--teal); }
+.btn.teal:hover{ background:#238477; }
+.btn.red{ background: var(--red); }
+.btn.small{ padding:.35rem .7rem; font-size:.78rem; }
+.btn.ghost{ background:transparent; color:var(--navy-soft,#345); border:1px dashed var(--border); }
+.btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+/* ---------- Dashboard ---------- */
+.progress-card{
+  background: linear-gradient(120deg, var(--navy) 0%, var(--navy-light) 100%);
+  color:#fff; border-radius: var(--radius); padding: 1.5rem 1.7rem; margin-bottom:1.5rem;
+  box-shadow: var(--shadow-lg);
+}
+.progress-card h2{ color:#fff; }
+.progress-bar-track{
+  background: rgba(255,255,255,.22); border-radius: 20px; height:14px; overflow:hidden; margin: .8rem 0 .4rem;
+}
+.progress-bar-fill{
+  background: linear-gradient(90deg, var(--teal), #6fd6c6);
+  height:100%; border-radius:20px; transition: width .4s ease;
+}
+.progress-meta{ display:flex; justify-content:space-between; font-size:.85rem; color:#cfe1f0; }
+
+.tiles-grid{
+  display:grid; grid-template-columns: repeat(auto-fill, minmax(210px,1fr));
+  gap: 1rem; margin-bottom:1.5rem;
+}
+.tile{
+  background:#fff; border:1px solid var(--border); border-radius: var(--radius);
+  padding: 1.1rem 1.2rem; box-shadow: var(--shadow); cursor:pointer;
+  transition: transform .12s, box-shadow .12s; text-align:left;
+}
+.tile:hover{ transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.tile .tile-ic{ font-size:1.6rem; margin-bottom:.5rem; display:block; }
+.tile h3{ font-size:1rem; margin-bottom:.2rem; }
+.tile p{ font-size:.82rem; color:var(--ink-soft); margin:0; }
+
+.summary-grid{
+  display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:1rem;
+}
+.stat-card{ display:flex; align-items:center; gap:.9rem; }
+.stat-card .stat-ic{
+  width:46px; height:46px; border-radius:10px; background:#eef4f8; color:var(--navy);
+  display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0;
+}
+.stat-card .stat-num{ font-size:1.4rem; font-weight:800; color:var(--navy); line-height:1.1; }
+.stat-card .stat-label{ font-size:.8rem; color:var(--ink-soft); }
+
+/* ---------- Map ---------- */
+.map-layout{ display:flex; gap:1.4rem; flex-wrap:wrap; }
+.map-filters{ display:flex; gap:.8rem; margin-bottom:1rem; flex-wrap:wrap; }
+.map-filters select{
+  padding:.5rem .7rem; border-radius:8px; border:1px solid var(--border); background:#fff; color:var(--ink);
+}
+.map-wrap{
+  flex:1 1 480px; background: linear-gradient(160deg,#eaf1f7,#dbe8f1);
+  border-radius: var(--radius); border:1px solid var(--border); box-shadow: var(--shadow);
+  padding: 1rem; position:relative; min-height: 520px;
+}
+.map-wrap svg{ width:100%; height:520px; display:block; }
+.map-land{ fill:#c9dced; stroke: var(--navy-light); stroke-width:2; }
+.map-pin{ cursor:pointer; }
+.map-pin circle{ fill: var(--red); stroke:#fff; stroke-width:2; transition: r .12s; }
+.map-pin:hover circle{ r:11; fill: var(--teal); }
+.map-pin text{ font-size:11px; fill: var(--navy-dark); font-weight:600; pointer-events:none; }
+.map-legend{ position:absolute; bottom:1rem; left:1rem; background:rgba(255,255,255,.9); padding:.5rem .8rem; border-radius:8px; font-size:.75rem; color:var(--ink-soft); box-shadow:var(--shadow); }
+
+.employer-panel{
+  flex: 0 0 320px; background:#fff; border:1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding:1.2rem; min-height: 300px;
+}
+.employer-panel .empty{ color:var(--ink-soft); font-size:.9rem; text-align:center; padding: 2rem 1rem; }
+.employer-panel .tag{
+  display:inline-block; background:#eef4f8; color:var(--navy); font-size:.72rem; font-weight:600;
+  padding:.2rem .6rem; border-radius:20px; margin: 0 .3rem .3rem 0;
+}
+.employer-panel h3{ margin-bottom:.2rem; }
+.employer-panel .company-region{ color: var(--ink-soft); font-size:.85rem; margin-bottom:.7rem; }
+
+/* modal (mobile-friendly variant of the side panel) */
+.modal-backdrop{
+  display:none; position:fixed; inset:0; background:rgba(10,20,30,.45); z-index:100;
+  align-items:center; justify-content:center; padding:1rem;
+}
+.modal-backdrop.show{ display:flex; }
+.modal-box{
+  background:#fff; border-radius:var(--radius); padding:1.4rem; max-width:420px; width:100%;
+  box-shadow: var(--shadow-lg); position:relative;
+}
+.modal-close{ position:absolute; top:.6rem; right:.7rem; background:none; border:none; font-size:1.3rem; color:var(--ink-soft); }
+
+/* ---------- CV Kreator ---------- */
+.cv-layout{ display:flex; gap:1.4rem; align-items:flex-start; flex-wrap:wrap; }
+.cv-form{ flex:1 1 420px; }
+.cv-form fieldset{ border:1px solid var(--border); border-radius: var(--radius); padding:1rem 1.1rem; margin-bottom:1rem; }
+.cv-form legend{ font-weight:700; color:var(--navy); padding:0 .4rem; }
+.form-row{ display:flex; gap:.7rem; flex-wrap:wrap; margin-bottom:.7rem; }
+.form-row .field{ flex:1 1 160px; display:flex; flex-direction:column; gap:.25rem; }
+.field label{ font-size:.78rem; color: var(--ink-soft); font-weight:600; }
+.field input, .field select, .field textarea{
+  padding:.5rem .6rem; border:1px solid var(--border); border-radius:7px; background:#fff;
+}
+.field textarea{ resize:vertical; min-height:60px; }
+.repeat-item{ border:1px dashed var(--border); border-radius:8px; padding:.8rem; margin-bottom:.7rem; position:relative; }
+.repeat-item .remove-btn{ position:absolute; top:.4rem; right:.4rem; background:none; border:none; color:var(--red); font-size:1rem; }
+
+.cv-preview-wrap{ flex:1 1 380px; position:sticky; top: 1rem; }
+.cv-preview{
+  background:#fff; border-radius:4px; box-shadow: var(--shadow-lg); padding: 2rem 2.2rem;
+  min-height: 500px; border-top:6px solid var(--navy);
+}
+.cv-preview h1{ font-size:1.6rem; margin-bottom:0; color:var(--navy); }
+.cv-preview .cv-role{ color:var(--teal); font-weight:600; margin-bottom:.6rem; }
+.cv-preview .cv-contact{ font-size:.8rem; color:var(--ink-soft); margin-bottom:1.3rem; }
+.cv-preview h4{ text-transform:uppercase; letter-spacing:.08em; font-size:.75rem; color:var(--navy); border-bottom:2px solid var(--navy); padding-bottom:.25rem; margin-top:1.2rem; margin-bottom:.6rem; }
+.cv-entry{ margin-bottom:.7rem; }
+.cv-entry .entry-title{ font-weight:700; font-size:.92rem; }
+.cv-entry .entry-meta{ font-size:.78rem; color:var(--ink-soft); }
+.cv-entry p{ font-size:.85rem; margin:.2rem 0 0; }
+.cv-chips{ display:flex; flex-wrap:wrap; gap:.4rem; }
+.cv-chips span{ background:#eef4f8; color:var(--navy); font-size:.75rem; padding:.25rem .6rem; border-radius:20px; }
+
+@media print{
+  body *{ visibility:hidden; }
+  #print-area, #print-area *{ visibility:visible; }
+  #print-area{ position:absolute; left:0; top:0; width:100%; }
+}
+
+/* ---------- Cover letter ---------- */
+.letter-layout{ display:flex; gap:1.4rem; flex-wrap:wrap; }
+.letter-layout > div{ flex:1 1 380px; }
+.letter-output{
+  background:#fff; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);
+  padding:1.4rem; white-space:pre-wrap; font-size:.92rem; line-height:1.6; min-height:320px;
+}
+
+/* ---------- Checklist ---------- */
+.checklist-cat{ margin-bottom:1.3rem; }
+.checklist-cat h3{ display:flex; align-items:center; gap:.5rem; }
+.checklist-cat .cat-progress{ font-size:.78rem; font-weight:600; color:var(--teal); background:#e5f5f2; padding:.15rem .55rem; border-radius:20px; }
+.check-item{ display:flex; align-items:center; gap:.6rem; padding:.5rem .3rem; border-bottom:1px solid #f0f3f6; }
+.check-item:last-child{ border-bottom:none; }
+.check-item input[type=checkbox]{ width:18px; height:18px; accent-color: var(--teal); flex-shrink:0; }
+.check-item label{ flex:1; font-size:.92rem; }
+.check-item.checked label{ text-decoration:line-through; color:var(--ink-soft); }
+.check-item .del-item{ background:none; border:none; color:#c3ccd4; font-size:.9rem; }
+.check-item .del-item:hover{ color:var(--red); }
+.add-item-row{ display:flex; gap:.5rem; margin-top:.6rem; }
+.add-item-row input{ flex:1; padding:.5rem .6rem; border:1px solid var(--border); border-radius:7px; }
+
+/* ---------- Kanban Tracker ---------- */
+.kanban{ display:grid; grid-template-columns: repeat(5, minmax(220px,1fr)); gap:1rem; overflow-x:auto; }
+.kanban-col{ background:#eef2f6; border-radius:var(--radius); padding:.8rem; min-height:300px; display:flex; flex-direction:column; }
+.kanban-col.drag-over{ background:#dcebf5; outline:2px dashed var(--teal); }
+.kanban-col h4{ font-size:.85rem; text-transform:uppercase; letter-spacing:.04em; color:var(--navy); margin-bottom:.7rem; display:flex; justify-content:space-between; }
+.kanban-col h4 .count{ background:var(--navy); color:#fff; border-radius:20px; padding:0 .5rem; font-size:.72rem; }
+.kanban-cards{ flex:1; display:flex; flex-direction:column; gap:.6rem; min-height:60px; }
+.kanban-card{
+  background:#fff; border-radius:8px; padding:.7rem .8rem; box-shadow: var(--shadow); cursor:grab;
+  border-left: 4px solid var(--teal);
+}
+.kanban-card:active{ cursor:grabbing; }
+.kanban-card .k-name{ font-weight:700; font-size:.87rem; }
+.kanban-card .k-meta{ font-size:.74rem; color:var(--ink-soft); margin-top:.15rem; }
+.kanban-card .k-actions{ margin-top:.4rem; display:flex; gap:.3rem; }
+.kanban-card .k-actions button{ font-size:.68rem; padding:.2rem .4rem; border:1px solid var(--border); background:#fff; border-radius:6px; color:var(--ink-soft); }
+.kanban-empty{ font-size:.78rem; color:#9fb0bd; text-align:center; padding:1rem .3rem; }
+
+/* ---------- Calculator ---------- */
+.calc-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:1.2rem; }
+.calc-col{ background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:1.2rem; box-shadow:var(--shadow); }
+.calc-result{ margin-top:1rem; padding-top:1rem; border-top:1px dashed var(--border); }
+.calc-result .big{ font-size:1.8rem; font-weight:800; color:var(--navy); }
+.calc-result .line{ display:flex; justify-content:space-between; font-size:.85rem; color:var(--ink-soft); padding:.15rem 0; }
+.calc-note{ font-size:.75rem; color:var(--ink-soft); margin-top:.8rem; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 860px){
+  .sidebar{ display:none; }
+  .sidebar.mobile-open{
+    display:flex; position:fixed; inset:0 auto 0 0; width:78%; max-width:300px; box-shadow: var(--shadow-lg);
+  }
+  .topbar{ display:flex; }
+  .content{ padding:1.1rem 1rem 3rem; }
+  .kanban{ grid-template-columns: 1fr; }
+  .cv-preview-wrap{ position:static; }
+}
+@media (max-width: 520px){
+  .map-wrap svg{ height:400px; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============================ SIDEBAR ============================ -->
+  <nav class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="logo">🧭</span>
+      <span class="name">NordPath<small>Twoja droga do Norwegii</small></span>
+    </div>
+    <ul class="nav-list" id="navList">
+      <li><button class="nav-item" data-view="dashboard"><span class="ic">🏠</span> Dashboard</button></li>
+      <li><button class="nav-item" data-view="map"><span class="ic">🗺️</span> Mapa pracodawców</button></li>
+      <li><button class="nav-item" data-view="cv"><span class="ic">📄</span> CV Kreator</button></li>
+      <li><button class="nav-item" data-view="letter"><span class="ic">✉️</span> List motywacyjny</button></li>
+      <li><button class="nav-item" data-view="checklist"><span class="ic">✅</span> Checklist emigracyjna</button></li>
+      <li><button class="nav-item" data-view="tracker"><span class="ic">📋</span> Tracker aplikacji</button></li>
+      <li><button class="nav-item" data-view="calculator"><span class="ic">💰</span> Kalkulator netto/brutto</button></li>
+    </ul>
+    <div class="sidebar-footer">DEMO v0.1 · dane lokalne w przeglądarce</div>
+  </nav>
+
+  <div style="flex:1; min-width:0; display:flex; flex-direction:column;">
+    <!-- Mobile top bar -->
+    <div class="topbar">
+      <span class="name">🧭 NordPath</span>
+      <button id="mobileMenuBtn">☰ Menu</button>
+    </div>
+
+    <main class="content">
+
+      <!-- ============================ DASHBOARD ============================ -->
+      <section class="view active" id="view-dashboard">
+        <div class="view-header">
+          <h1>Cześć! 👋</h1>
+          <p class="subtitle">Oto Twój postęp w przygotowaniach do wyjazdu do pracy w Norwegii.</p>
+        </div>
+
+        <div class="progress-card">
+          <h2>Twoja droga do Norwegii</h2>
+          <div class="progress-bar-track"><div class="progress-bar-fill" id="dashProgressFill" style="width:0%"></div></div>
+          <div class="progress-meta">
+            <span id="dashProgressText">0% checklisty ukończone</span>
+            <span id="dashProgressCount">0/0 zadań</span>
+          </div>
+        </div>
+
+        <div class="tiles-grid">
+          <button class="tile" data-view="map"><span class="tile-ic">🗺️</span><h3>Mapa pracodawców</h3><p>Przeglądaj firmy w Norwegii i dodawaj je do trackera.</p></button>
+          <button class="tile" data-view="cv"><span class="tile-ic">📄</span><h3>CV Kreator</h3><p>Zbuduj CV w skandynawskim stylu.</p></button>
+          <button class="tile" data-view="letter"><span class="tile-ic">✉️</span><h3>List motywacyjny</h3><p>Wygeneruj szablon na podstawie ogłoszenia.</p></button>
+          <button class="tile" data-view="checklist"><span class="tile-ic">✅</span><h3>Checklist emigracyjna</h3><p>Dokumenty, formalności, finanse, mieszkanie.</p></button>
+          <button class="tile" data-view="tracker"><span class="tile-ic">📋</span><h3>Tracker aplikacji</h3><p>Zarządzaj procesem rekrutacji jak Kanban.</p></button>
+          <button class="tile" data-view="calculator"><span class="tile-ic">💰</span><h3>Kalkulator netto/brutto</h3><p>Oszacuj wynagrodzenie na rękę.</p></button>
+        </div>
+
+        <h2>Podsumowanie</h2>
+        <div class="summary-grid">
+          <div class="card stat-card">
+            <div class="stat-ic">📋</div>
+            <div><div class="stat-num" id="statTrackerCount">0</div><div class="stat-label">ofert w trackerze</div></div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-ic">🎯</div>
+            <div><div class="stat-num" id="statOffers">0</div><div class="stat-label">ofert pracy otrzymanych</div></div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-ic">📄</div>
+            <div><div class="stat-num" id="statCvStatus">—</div><div class="stat-label">status CV</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================ MAPA PRACODAWCÓW ============================ -->
+      <section class="view" id="view-map">
+        <div class="view-header">
+          <h1>Mapa pracodawców</h1>
+          <p class="subtitle">Przykładowe firmy zatrudniające Polaków w Norwegii. Kliknij pinezkę, aby zobaczyć szczegóły.</p>
+        </div>
+
+        <div class="map-filters">
+          <select id="filterIndustry"><option value="">Wszystkie branże</option></select>
+          <select id="filterRegion"><option value="">Wszystkie regiony</option></select>
+        </div>
+
+        <div class="map-layout">
+          <div class="map-wrap">
+            <svg id="norwayMap" viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg">
+              <path class="map-land" d="M230 20 L260 60 L250 120 L290 180 L270 240 L310 300 L290 360 L320 420 L300 480 L330 540 L310 600 L340 650 L300 700 L320 740 L270 780 L220 790 L180 770 L150 740 L120 700 L140 660 L100 630 L130 600 L90 560 L120 520 L80 480 L110 440 L70 400 L100 360 L60 320 L90 280 L60 240 L100 220 L70 180 L110 150 L90 100 L140 60 L180 40 Z"/>
+              <g id="mapPins"></g>
+            </svg>
+            <div class="map-legend">📍 Kliknij pinezkę = szczegóły firmy</div>
+          </div>
+
+          <aside class="employer-panel" id="employerPanel">
+            <div class="empty">Wybierz firmę na mapie,<br>aby zobaczyć szczegóły.</div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ============================ CV KREATOR ============================ -->
+      <section class="view" id="view-cv">
+        <div class="view-header">
+          <h1>CV Kreator</h1>
+          <p class="subtitle">Uzupełnij dane — podgląd po prawej aktualizuje się na żywo.</p>
+        </div>
+
+        <div class="cv-layout">
+          <form class="cv-form" id="cvForm">
+            <fieldset>
+              <legend>Dane osobowe</legend>
+              <div class="form-row">
+                <div class="field"><label>Imię</label><input type="text" id="cv_firstName" placeholder="Jan"></div>
+                <div class="field"><label>Nazwisko</label><input type="text" id="cv_lastName" placeholder="Kowalski"></div>
+              </div>
+              <div class="form-row">
+                <div class="field"><label>Stanowisko / cel zawodowy</label><input type="text" id="cv_role" placeholder="np. Cieśla / Tesler"></div>
+              </div>
+              <div class="form-row">
+                <div class="field"><label>E-mail</label><input type="email" id="cv_email" placeholder="jan.kowalski@email.com"></div>
+                <div class="field"><label>Telefon</label><input type="text" id="cv_phone" placeholder="+48 600 000 000"></div>
+              </div>
+              <div class="form-row">
+                <div class="field"><label>Miasto</label><input type="text" id="cv_city" placeholder="Gdańsk"></div>
+              </div>
+              <div class="form-row">
+                <div class="field"><label>O mnie</label><textarea id="cv_summary" placeholder="Krótkie podsumowanie zawodowe..."></textarea></div>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Doświadczenie zawodowe</legend>
+              <div id="cvExperienceList"></div>
+              <button type="button" class="btn secondary small" id="addExperienceBtn">+ Dodaj doświadczenie</button>
+            </fieldset>
+
+            <fieldset>
+              <legend>Wykształcenie</legend>
+              <div id="cvEducationList"></div>
+              <button type="button" class="btn secondary small" id="addEducationBtn">+ Dodaj wykształcenie</button>
+            </fieldset>
+
+            <fieldset>
+              <legend>Umiejętności</legend>
+              <div class="field"><label>Umiejętności (oddziel przecinkiem)</label><input type="text" id="cv_skills" placeholder="Spawanie, Prawo jazdy kat. B, MS Office"></div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Języki</legend>
+              <div id="cvLanguagesList"></div>
+              <button type="button" class="btn secondary small" id="addLanguageBtn">+ Dodaj język</button>
+            </fieldset>
+          </form>
+
+          <div class="cv-preview-wrap">
+            <button class="btn teal" id="downloadPdfBtn" style="margin-bottom:.8rem;">⬇️ Pobierz jako PDF</button>
+            <div id="print-area">
+              <div class="cv-preview" id="cvPreview"><!-- rendered by JS --></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================ LIST MOTYWACYJNY ============================ -->
+      <section class="view" id="view-letter">
+        <div class="view-header">
+          <h1>Generator listu motywacyjnego</h1>
+          <p class="subtitle">Wklej opis oferty pracy, a wygenerujemy przykładowy szablon na bazie Twojego CV.</p>
+        </div>
+
+        <div class="letter-layout">
+          <div>
+            <div class="card">
+              <div class="field" style="margin-bottom:.8rem;">
+                <label>Nazwa firmy (opcjonalnie)</label>
+                <input type="text" id="letterCompany" placeholder="np. Nord Bygg AS">
+              </div>
+              <div class="field">
+                <label>Treść ogłoszenia o pracę</label>
+                <textarea id="letterJobDesc" style="min-height:220px;" placeholder="Wklej tutaj opis oferty pracy..."></textarea>
+              </div>
+              <button class="btn teal" id="generateLetterBtn" style="margin-top:1rem;">✨ Wygeneruj list motywacyjny</button>
+              <!-- TODO: podpiąć Gemini API do prawdziwej generacji treści na podstawie ogłoszenia i CV -->
+            </div>
+          </div>
+          <div>
+            <div class="letter-output" id="letterOutput">Twój wygenerowany list pojawi się tutaj...</div>
+            <button class="btn secondary small" id="copyLetterBtn" style="margin-top:.7rem;">📋 Kopiuj tekst</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================ CHECKLIST ============================ -->
+      <section class="view" id="view-checklist">
+        <div class="view-header">
+          <h1>Checklist emigracyjna</h1>
+          <p class="subtitle">Zaznaczaj ukończone kroki — wpływają na pasek postępu na Dashboardzie.</p>
+        </div>
+        <div id="checklistContainer"><!-- rendered by JS --></div>
+      </section>
+
+      <!-- ============================ TRACKER (KANBAN) ============================ -->
+      <section class="view" id="view-tracker">
+        <div class="view-header">
+          <h1>Tracker aplikacji</h1>
+          <p class="subtitle">Przeciągnij karty firm między etapami rekrutacji.</p>
+        </div>
+        <div class="kanban" id="kanbanBoard"><!-- rendered by JS --></div>
+      </section>
+
+      <!-- ============================ KALKULATOR ============================ -->
+      <section class="view" id="view-calculator">
+        <div class="view-header">
+          <h1>Kalkulator netto / brutto</h1>
+          <p class="subtitle">Szacunkowe wyliczenie wynagrodzenia netto wg uproszczonych norweskich zasad podatkowych.</p>
+        </div>
+
+        <div class="calc-grid">
+          <div class="calc-col">
+            <h3>Kwota A</h3>
+            <div class="field"><label>Wynagrodzenie brutto / miesiąc (NOK)</label><input type="number" id="calcGrossA" placeholder="45000"></div>
+            <div class="calc-result" id="calcResultA"></div>
+          </div>
+          <div class="calc-col">
+            <h3>Kwota B (porównanie)</h3>
+            <div class="field"><label>Wynagrodzenie brutto / miesiąc (NOK)</label><input type="number" id="calcGrossB" placeholder="52000"></div>
+            <div class="calc-result" id="calcResultB"></div>
+          </div>
+        </div>
+        <p class="calc-note">⚠️ To jest wyliczenie szacunkowe (uproszczony model trinnskatt + trygdeavgift + podatek 22%), nie stanowi porady podatkowej. Rzeczywista kwota zależy od karty podatkowej, ulg i sytuacji osobistej.</p>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- Modal używany na mniejszych ekranach zamiast panelu bocznego mapy -->
+<div class="modal-backdrop" id="employerModalBackdrop">
+  <div class="modal-box">
+    <button class="modal-close" id="employerModalClose">✕</button>
+    <div id="employerModalContent"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   NordPath — logika aplikacji (demo, bez backendu)
+   Struktury danych poniżej są napisane tak, aby łatwo zmapować je na
+   przyszłe tabele w Supabase/Postgres (patrz komentarze "DB:").
+   ========================================================================= */
+
+/* ---------------------------------------------------------------------
+   1. STAŁE / KLUCZE LOCALSTORAGE
+   --------------------------------------------------------------------- */
+const STORAGE_KEYS = {
+  CV: 'nordpath_cv',                 // DB: table `cv_profiles`
+  CHECKLIST: 'nordpath_checklist',   // DB: table `checklist_items`
+  TRACKER: 'nordpath_applications',  // DB: table `applications`
+  LETTER: 'nordpath_last_letter',    // DB: table `cover_letters`
+};
+
+/* ---------------------------------------------------------------------
+   2. DANE STATYCZNE — PRACODAWCY (seed / read-only w demo)
+   DB: przyszła tabela `employers` (id, name, industry, region, city,
+       map_x, map_y, language_required, description)
+   --------------------------------------------------------------------- */
+const EMPLOYERS = [
+  { id:'e1', name:'Nord Bygg AS', industry:'Budownictwo', region:'Oslo', city:'Oslo', x:290, y:730, language:'Norweski (podstawowy)', description:'Firma budowlana realizująca projekty mieszkaniowe i komercyjne w regionie Oslo. Poszukuje cieśli, murarzy i pomocników budowlanych.' },
+  { id:'e2', name:'Oslo Rengjøring AS', industry:'Sprzątanie / Facility', region:'Oslo', city:'Oslo', x:305, y:715, language:'Norweski (podstawowy)', description:'Firma sprzątająca obiekty biurowe i handlowe w aglomeracji Oslo. Elastyczne godziny pracy, szkolenie wstępne zapewnione.' },
+  { id:'e3', name:'Nord Transport Norge', industry:'Transport i logistyka', region:'Oslo', city:'Oslo', x:275, y:745, language:'Angielski / Norweski', description:'Firma transportowa zatrudniająca kierowców kat. C+E na trasach krajowych w Norwegii. Wymagane prawo jazdy i karta kierowcy.' },
+  { id:'e4', name:'Oslo IT Solutions', industry:'IT', region:'Oslo', city:'Oslo', x:295, y:700, language:'Angielski', description:'Software house tworzący aplikacje dla sektora finansowego. Zespoły międzynarodowe, praca w dużej mierze zdalna/hybrydowa.' },
+  { id:'e5', name:'Oslo Restaurant Nord', industry:'Gastronomia', region:'Oslo', city:'Oslo', x:310, y:745, language:'Norweski (podstawowy)', description:'Sieć restauracji poszukująca kucharzy i pomocy kuchennej. Możliwość szybkiego awansu i nauki języka w pracy.' },
+
+  { id:'e6', name:'Fjord Sjømat AS', industry:'Przemysł rybny', region:'Bergen', city:'Bergen', x:110, y:600, language:'Norweski / Angielski', description:'Przetwórnia ryb i owoców morza na zachodnim wybrzeżu. Zatrudnia pracowników produkcyjnych, praca zmianowa.' },
+  { id:'e7', name:'Bergen Bygg & Anlegg', industry:'Budownictwo', region:'Bergen', city:'Bergen', x:95, y:615, language:'Norweski (podstawowy)', description:'Przedsiębiorstwo budowlano-inżynieryjne realizujące projekty infrastrukturalne w regionie Bergen.' },
+  { id:'e8', name:'Grønn Gartneri Norge', industry:'Rolnictwo / Ogrodnictwo', region:'Bergen', city:'Bergen', x:125, y:585, language:'Podstawowy (bez wymagań)', description:'Gospodarstwo ogrodnicze zatrudniające sezonowo i na stałe pracowników do upraw szklarniowych.' },
+  { id:'e9', name:'Care Norge Bergen', industry:'Opieka zdrowotna', region:'Bergen', city:'Bergen', x:105, y:630, language:'Norweski (B1)', description:'Placówka opieki nad osobami starszymi. Poszukuje opiekunów i pomocniczego personelu medycznego.' },
+
+  { id:'e10', name:'Stavanger Offshore Services', industry:'Ropa i gaz', region:'Stavanger', city:'Stavanger', x:150, y:720, language:'Angielski', description:'Firma serwisowa dla sektora offshore. Zatrudnia techników i pracowników platform wiertniczych.' },
+  { id:'e11', name:'Stavanger Hotell Gruppen', industry:'Hotelarstwo', region:'Stavanger', city:'Stavanger', x:135, y:705, language:'Angielski', description:'Sieć hoteli w regionie Rogaland. Poszukuje recepcjonistów, pokojówek i personelu obsługi.' },
+  { id:'e12', name:'Sikker Bygg Stavanger', industry:'Budownictwo', region:'Stavanger', city:'Stavanger', x:160, y:735, language:'Norweski (A2)', description:'Firma budowlana specjalizująca się w budownictwie mieszkaniowym. Nacisk na BHP i certyfikaty branżowe.' },
+
+  { id:'e13', name:'Trondheim Helse Senter', industry:'Opieka zdrowotna', region:'Trondheim', city:'Trondheim', x:90, y:260, language:'Norweski (B1)', description:'Centrum zdrowia zatrudniające pielęgniarki i asystentów medycznych. Wymagana nostryfikacja dyplomu (NOKUT).' },
+  { id:'e14', name:'Trondheim Verft AS', industry:'Przemysł stoczniowy', region:'Trondheim', city:'Trondheim', x:75, y:275, language:'Norweski (podstawowy)', description:'Stocznia budująca statki serwisowe. Zatrudnia spawaczy, monterów i elektryków przemysłowych.' },
+  { id:'e15', name:'Nordkyst Fiskeri', industry:'Rybołówstwo', region:'Trondheim', city:'Trondheim', x:105, y:245, language:'Norweski (podstawowy)', description:'Firma rybacka działająca na wodach środkowej Norwegii. Praca na kutrach i w przetwórstwie.' },
+];
+
+/* ---------------------------------------------------------------------
+   3. DOMYŚLNE DANE CHECKLISTY
+   DB: przyszła tabela `checklist_items` (id, user_id, category, label,
+       checked, is_custom, created_at)
+   --------------------------------------------------------------------- */
+const DEFAULT_CHECKLIST = [
+  { category:'Dokumenty', items:[
+    { label:'Ważny paszport lub dowód osobisty', checked:false },
+    { label:'Tłumaczenie dyplomów i uznanie kwalifikacji (NOKUT)', checked:false },
+    { label:'Zaświadczenie o niekaralności', checked:false },
+    { label:'CV i list motywacyjny w j. angielskim/norweskim', checked:false },
+  ]},
+  { category:'Formalności NO', items:[
+    { label:'Rejestracja D-number / numer personalny', checked:false },
+    { label:'Zameldowanie w Folkeregisteret', checked:false },
+    { label:'Zgłoszenie do urzędu skarbowego (Skatteetaten)', checked:false },
+    { label:'Karta podatkowa (skattekort)', checked:false },
+    { label:'Kontrola tożsamości (ID-kontroll)', checked:false },
+  ]},
+  { category:'Finanse', items:[
+    { label:'Założenie konta bankowego w Norwegii', checked:false },
+    { label:'Aktywacja BankID', checked:false },
+    { label:'Sprawdzenie umowy o pracę i kalkulacja netto', checked:false },
+    { label:'Ubezpieczenie zdrowotne (Helfo)', checked:false },
+  ]},
+  { category:'Zakwaterowanie', items:[
+    { label:'Znalezienie mieszkania lub pokoju', checked:false },
+    { label:'Podpisanie umowy najmu', checked:false },
+    { label:'Zgłoszenie adresu zamieszkania', checked:false },
+    { label:'Sprawdzenie transportu publicznego w okolicy', checked:false },
+  ]},
+];
+
+/* ---------------------------------------------------------------------
+   4. STAN APLIKACJI (wczytywany / zapisywany do localStorage)
+   --------------------------------------------------------------------- */
+let state = {
+  cv: null,          // DB: cv_profiles row
+  checklist: null,   // DB: checklist_items rows (pogrupowane po category)
+  tracker: [],        // DB: applications rows
+};
+
+function loadState(){
+  state.cv = JSON.parse(localStorage.getItem(STORAGE_KEYS.CV)) || defaultCv();
+  state.checklist = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHECKLIST)) || structuredCloneChecklist();
+  state.tracker = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRACKER)) || [];
+}
+function structuredCloneChecklist(){
+  return DEFAULT_CHECKLIST.map((cat,ci) => ({
+    category: cat.category,
+    items: cat.items.map((it,ii) => ({ id: `c${ci}_${ii}`, label: it.label, checked: it.checked, custom:false }))
+  }));
+}
+function defaultCv(){
+  return {
+    personal:{ firstName:'', lastName:'', role:'', email:'', phone:'', city:'', summary:'' },
+    experience: [],
+    education: [],
+    skills: '',
+    languages: [],
+  };
+}
+function saveCv(){ localStorage.setItem(STORAGE_KEYS.CV, JSON.stringify(state.cv)); renderDashboard(); }
+function saveChecklist(){ localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(state.checklist)); renderDashboard(); }
+function saveTracker(){ localStorage.setItem(STORAGE_KEYS.TRACKER, JSON.stringify(state.tracker)); renderDashboard(); }
+
+/* ---------------------------------------------------------------------
+   5. NAWIGACJA / ROUTING SPA
+   --------------------------------------------------------------------- */
+const views = document.querySelectorAll('.view');
+const navItems = document.querySelectorAll('.nav-item');
+
+function switchView(viewName){
+  views.forEach(v => v.classList.toggle('active', v.id === `view-${viewName}`));
+  navItems.forEach(n => n.classList.toggle('active', n.dataset.view === viewName));
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  window.scrollTo({ top:0, behavior:'instant' });
+  // odśwież widok przy wejściu (dla modułów zależnych od stanu)
+  if(viewName === 'checklist') renderChecklist();
+  if(viewName === 'tracker') renderKanban();
+  if(viewName === 'cv') renderCvPreview();
+  if(viewName === 'dashboard') renderDashboard();
+}
+
+document.querySelectorAll('[data-view]').forEach(el => {
+  el.addEventListener('click', () => switchView(el.dataset.view));
+});
+
+document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+});
+
+/* ---------------------------------------------------------------------
+   6. DASHBOARD
+   --------------------------------------------------------------------- */
+function computeChecklistProgress(){
+  let total = 0, done = 0;
+  state.checklist.forEach(cat => cat.items.forEach(it => { total++; if(it.checked) done++; }));
+  return { total, done, pct: total ? Math.round((done/total)*100) : 0 };
+}
+
+function renderDashboard(){
+  const { total, done, pct } = computeChecklistProgress();
+  document.getElementById('dashProgressFill').style.width = pct + '%';
+  document.getElementById('dashProgressText').textContent = `${pct}% checklisty ukończone`;
+  document.getElementById('dashProgressCount').textContent = `${done}/${total} zadań`;
+
+  document.getElementById('statTrackerCount').textContent = state.tracker.length;
+  document.getElementById('statOffers').textContent = state.tracker.filter(a => a.status === 'offer').length;
+
+  const cvFilled = state.cv.personal.firstName && state.cv.personal.lastName && state.cv.personal.email;
+  document.getElementById('statCvStatus').textContent = cvFilled ? 'Uzupełnione' : 'Do uzupełnienia';
+}
+
+/* ---------------------------------------------------------------------
+   7. MAPA PRACODAWCÓW
+   --------------------------------------------------------------------- */
+function populateMapFilters(){
+  const industries = [...new Set(EMPLOYERS.map(e => e.industry))].sort();
+  const regions = [...new Set(EMPLOYERS.map(e => e.region))].sort();
+  const indSel = document.getElementById('filterIndustry');
+  const regSel = document.getElementById('filterRegion');
+  industries.forEach(i => { const o = document.createElement('option'); o.value = i; o.textContent = i; indSel.appendChild(o); });
+  regions.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; regSel.appendChild(o); });
+  indSel.addEventListener('change', renderMapPins);
+  regSel.addEventListener('change', renderMapPins);
+}
+
+function renderMapPins(){
+  const industry = document.getElementById('filterIndustry').value;
+  const region = document.getElementById('filterRegion').value;
+  const g = document.getElementById('mapPins');
+  g.innerHTML = '';
+
+  EMPLOYERS
+    .filter(e => (!industry || e.industry === industry) && (!region || e.region === region))
+    .forEach(e => {
+      const pin = document.createElementNS('http://www.w3.org/2000/svg','g');
+      pin.setAttribute('class','map-pin');
+      pin.setAttribute('data-id', e.id);
+      pin.innerHTML = `
+        <circle cx="${e.x}" cy="${e.y}" r="8"></circle>
+        <text x="${e.x + 12}" y="${e.y + 4}">${e.name}</text>
+      `;
+      pin.addEventListener('click', () => showEmployerDetails(e.id));
+      g.appendChild(pin);
+    });
+}
+
+function showEmployerDetails(id){
+  const e = EMPLOYERS.find(x => x.id === id);
+  if(!e) return;
+  const html = `
+    <h3>${e.name}</h3>
+    <div class="company-region">📍 ${e.city} · ${e.region}</div>
+    <div class="tag">${e.industry}</div>
+    <div class="tag">🗣️ ${e.language}</div>
+    <p style="margin-top:.9rem;">${e.description}</p>
+    <button class="btn teal" data-add-tracker="${e.id}">+ Dodaj do trackera</button>
+  `;
+  // Panel boczny (desktop)
+  document.getElementById('employerPanel').innerHTML = html;
+  // Modal (mobile)
+  document.getElementById('employerModalContent').innerHTML = html;
+  if(window.innerWidth <= 860){
+    document.getElementById('employerModalBackdrop').classList.add('show');
+  }
+  document.querySelectorAll('[data-add-tracker]').forEach(btn => {
+    btn.addEventListener('click', () => addEmployerToTracker(btn.dataset.addTracker));
+  });
+}
+
+document.getElementById('employerModalClose').addEventListener('click', () => {
+  document.getElementById('employerModalBackdrop').classList.remove('show');
+});
+document.getElementById('employerModalBackdrop').addEventListener('click', (ev) => {
+  if(ev.target.id === 'employerModalBackdrop') ev.currentTarget.classList.remove('show');
+});
+
+function addEmployerToTracker(employerId){
+  const e = EMPLOYERS.find(x => x.id === employerId);
+  if(!e) return;
+  const alreadyAdded = state.tracker.some(a => a.employerId === employerId);
+  if(alreadyAdded){
+    alert(`${e.name} jest już w Twoim trackerze.`);
+    return;
+  }
+  state.tracker.push({
+    id: 'app_' + Date.now(),      // DB: applications.id
+    employerId: e.id,             // DB: applications.employer_id (FK)
+    employerName: e.name,
+    industry: e.industry,
+    region: e.region,
+    status: 'todo',               // DB: enum todo|sent|reply|interview|offer
+    createdAt: new Date().toISOString(),
+  });
+  saveTracker();
+  alert(`Dodano ${e.name} do trackera (kolumna "Do wysłania").`);
+}
+
+/* ---------------------------------------------------------------------
+   8. CV KREATOR
+   --------------------------------------------------------------------- */
+const cvPersonalFields = ['firstName','lastName','role','email','phone','city','summary'];
+
+function bindCvPersonalInputs(){
+  cvPersonalFields.forEach(f => {
+    const el = document.getElementById('cv_' + f);
+    el.addEventListener('input', () => {
+      state.cv.personal[f] = el.value;
+      saveCv();
+      renderCvPreview();
+    });
+  });
+  document.getElementById('cv_skills').addEventListener('input', (e) => {
+    state.cv.skills = e.target.value;
+    saveCv();
+    renderCvPreview();
+  });
+}
+
+function loadCvIntoForm(){
+  cvPersonalFields.forEach(f => { document.getElementById('cv_' + f).value = state.cv.personal[f] || ''; });
+  document.getElementById('cv_skills').value = state.cv.skills || '';
+  renderExperienceForm();
+  renderEducationForm();
+  renderLanguagesForm();
+}
+
+// --- Doświadczenie ---
+function renderExperienceForm(){
+  const wrap = document.getElementById('cvExperienceList');
+  wrap.innerHTML = '';
+  state.cv.experience.forEach((exp, idx) => {
+    const div = document.createElement('div');
+    div.className = 'repeat-item';
+    div.innerHTML = `
+      <button type="button" class="remove-btn" data-remove-exp="${idx}">✕</button>
+      <div class="form-row">
+        <div class="field"><label>Stanowisko</label><input type="text" data-exp="${idx}" data-field="title" value="${escapeAttr(exp.title)}"></div>
+        <div class="field"><label>Firma</label><input type="text" data-exp="${idx}" data-field="company" value="${escapeAttr(exp.company)}"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Okres</label><input type="text" data-exp="${idx}" data-field="period" placeholder="2021 - 2023" value="${escapeAttr(exp.period)}"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Opis obowiązków</label><textarea data-exp="${idx}" data-field="desc">${escapeHtml(exp.desc)}</textarea></div>
+      </div>
+    `;
+    wrap.appendChild(div);
+  });
+  wrap.querySelectorAll('[data-exp]').forEach(el => {
+    el.addEventListener('input', () => {
+      state.cv.experience[el.dataset.exp][el.dataset.field] = el.value;
+      saveCv(); renderCvPreview();
+    });
+  });
+  wrap.querySelectorAll('[data-remove-exp]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.cv.experience.splice(btn.dataset.removeExp, 1);
+      saveCv(); renderExperienceForm(); renderCvPreview();
+    });
+  });
+}
+document.getElementById('addExperienceBtn').addEventListener('click', () => {
+  state.cv.experience.push({ title:'', company:'', period:'', desc:'' });
+  saveCv(); renderExperienceForm(); renderCvPreview();
+});
+
+// --- Wykształcenie ---
+function renderEducationForm(){
+  const wrap = document.getElementById('cvEducationList');
+  wrap.innerHTML = '';
+  state.cv.education.forEach((ed, idx) => {
+    const div = document.createElement('div');
+    div.className = 'repeat-item';
+    div.innerHTML = `
+      <button type="button" class="remove-btn" data-remove-edu="${idx}">✕</button>
+      <div class="form-row">
+        <div class="field"><label>Szkoła / uczelnia</label><input type="text" data-edu="${idx}" data-field="school" value="${escapeAttr(ed.school)}"></div>
+        <div class="field"><label>Kierunek</label><input type="text" data-edu="${idx}" data-field="field" value="${escapeAttr(ed.field)}"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Okres</label><input type="text" data-edu="${idx}" data-field="period" placeholder="2016 - 2020" value="${escapeAttr(ed.period)}"></div>
+      </div>
+    `;
+    wrap.appendChild(div);
+  });
+  wrap.querySelectorAll('[data-edu]').forEach(el => {
+    el.addEventListener('input', () => {
+      state.cv.education[el.dataset.edu][el.dataset.field] = el.value;
+      saveCv(); renderCvPreview();
+    });
+  });
+  wrap.querySelectorAll('[data-remove-edu]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.cv.education.splice(btn.dataset.removeEdu, 1);
+      saveCv(); renderEducationForm(); renderCvPreview();
+    });
+  });
+}
+document.getElementById('addEducationBtn').addEventListener('click', () => {
+  state.cv.education.push({ school:'', field:'', period:'' });
+  saveCv(); renderEducationForm(); renderCvPreview();
+});
+
+// --- Języki ---
+const LANGUAGE_LEVELS = ['A1','A2','B1','B2','C1','C2','Ojczysty'];
+function renderLanguagesForm(){
+  const wrap = document.getElementById('cvLanguagesList');
+  wrap.innerHTML = '';
+  state.cv.languages.forEach((lang, idx) => {
+    const div = document.createElement('div');
+    div.className = 'repeat-item';
+    div.innerHTML = `
+      <button type="button" class="remove-btn" data-remove-lang="${idx}">✕</button>
+      <div class="form-row">
+        <div class="field"><label>Język</label><input type="text" data-lang="${idx}" data-field="name" placeholder="Norweski" value="${escapeAttr(lang.name)}"></div>
+        <div class="field"><label>Poziom</label>
+          <select data-lang="${idx}" data-field="level">
+            ${LANGUAGE_LEVELS.map(l => `<option value="${l}" ${lang.level===l?'selected':''}>${l}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    `;
+    wrap.appendChild(div);
+  });
+  wrap.querySelectorAll('[data-lang]').forEach(el => {
+    el.addEventListener('input', () => {
+      state.cv.languages[el.dataset.lang][el.dataset.field] = el.value;
+      saveCv(); renderCvPreview();
+    });
+    el.addEventListener('change', () => {
+      state.cv.languages[el.dataset.lang][el.dataset.field] = el.value;
+      saveCv(); renderCvPreview();
+    });
+  });
+  wrap.querySelectorAll('[data-remove-lang]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.cv.languages.splice(btn.dataset.removeLang, 1);
+      saveCv(); renderLanguagesForm(); renderCvPreview();
+    });
+  });
+}
+document.getElementById('addLanguageBtn').addEventListener('click', () => {
+  state.cv.languages.push({ name:'', level:'B1' });
+  saveCv(); renderLanguagesForm(); renderCvPreview();
+});
+
+function escapeHtml(str){ return (str||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function escapeAttr(str){ return escapeHtml(str).replace(/"/g,'&quot;'); }
+
+function renderCvPreview(){
+  const p = state.cv.personal;
+  const fullName = `${p.firstName || 'Imię'} ${p.lastName || 'Nazwisko'}`;
+  const contactParts = [p.email, p.phone, p.city].filter(Boolean).join(' · ');
+  const skillsArr = (state.cv.skills || '').split(',').map(s => s.trim()).filter(Boolean);
+
+  const experienceHtml = state.cv.experience.length
+    ? state.cv.experience.map(exp => `
+        <div class="cv-entry">
+          <div class="entry-title">${escapeHtml(exp.title) || 'Stanowisko'} ${exp.company ? '— ' + escapeHtml(exp.company) : ''}</div>
+          <div class="entry-meta">${escapeHtml(exp.period)}</div>
+          <p>${escapeHtml(exp.desc)}</p>
+        </div>`).join('')
+    : '<p style="color:#9fb0bd;">Brak dodanych pozycji.</p>';
+
+  const educationHtml = state.cv.education.length
+    ? state.cv.education.map(ed => `
+        <div class="cv-entry">
+          <div class="entry-title">${escapeHtml(ed.school) || 'Szkoła / uczelnia'}</div>
+          <div class="entry-meta">${escapeHtml(ed.field)} ${ed.period ? '· ' + escapeHtml(ed.period) : ''}</div>
+        </div>`).join('')
+    : '<p style="color:#9fb0bd;">Brak dodanych pozycji.</p>';
+
+  const languagesHtml = state.cv.languages.length
+    ? `<div class="cv-chips">${state.cv.languages.map(l => `<span>${escapeHtml(l.name) || 'Język'} — ${l.level}</span>`).join('')}</div>`
+    : '<p style="color:#9fb0bd;">Brak dodanych języków.</p>';
+
+  document.getElementById('cvPreview').innerHTML = `
+    <h1>${escapeHtml(fullName)}</h1>
+    ${p.role ? `<div class="cv-role">${escapeHtml(p.role)}</div>` : ''}
+    <div class="cv-contact">${escapeHtml(contactParts)}</div>
+    ${p.summary ? `<p>${escapeHtml(p.summary)}</p>` : ''}
+
+    <h4>Doświadczenie zawodowe</h4>
+    ${experienceHtml}
+
+    <h4>Wykształcenie</h4>
+    ${educationHtml}
+
+    <h4>Umiejętności</h4>
+    <div class="cv-chips">${skillsArr.length ? skillsArr.map(s => `<span>${escapeHtml(s)}</span>`).join('') : '<p style="color:#9fb0bd;">Brak.</p>'}</div>
+
+    <h4>Języki</h4>
+    ${languagesHtml}
+  `;
+}
+
+document.getElementById('downloadPdfBtn').addEventListener('click', () => window.print());
+
+/* ---------------------------------------------------------------------
+   9. GENERATOR LISTU MOTYWACYJNEGO (statyczny szablon — bez AI)
+   --------------------------------------------------------------------- */
+document.getElementById('generateLetterBtn').addEventListener('click', () => {
+  const company = document.getElementById('letterCompany').value.trim() || 'Państwa firmy';
+  const jobDesc = document.getElementById('letterJobDesc').value.trim();
+  const p = state.cv.personal;
+  const fullName = `${p.firstName || 'Imię'} ${p.lastName || 'Nazwisko'}`;
+  const role = p.role || 'wskazane w ogłoszeniu stanowisko';
+  const topSkill = (state.cv.skills || '').split(',').map(s=>s.trim()).filter(Boolean)[0] || 'moje kompetencje zawodowe';
+  const topLang = state.cv.languages[0] ? `${state.cv.languages[0].name} (${state.cv.languages[0].level})` : 'język angielski';
+
+  // TODO: podpiąć Gemini API — wysłać jobDesc + dane z CV i wygenerować
+  // spersonalizowaną treść listu zamiast statycznego szablonu poniżej.
+  const template = `Szanowni Państwo,
+
+z dużym zainteresowaniem zapoznałem/-am się z ofertą pracy na stanowisko ${role} w ${company}. Pragnę zgłosić swoją kandydaturę, ponieważ moje doświadczenie i umiejętności odpowiadają wymaganiom przedstawionym w ogłoszeniu${jobDesc ? ':\n\n"' + jobDesc.slice(0,220) + (jobDesc.length>220 ? '...' : '') + '"\n' : '.'}
+Posiadam doświadczenie zawodowe w obszarach wskazanych w moim CV, w tym w zakresie: ${topSkill}. Znam również ${topLang}, co pozwoli mi na sprawną komunikację w środowisku pracy w Norwegii.
+
+Jestem osobą zmotywowaną, odpowiedzialną i otwartą na nowe wyzwania związane z przeprowadzką i pracą za granicą. Chętnie opowiem więcej o swoim doświadczeniu podczas rozmowy kwalifikacyjnej.
+
+Z poważaniem,
+${fullName}
+${p.email || ''} ${p.phone ? '· ' + p.phone : ''}`;
+
+  document.getElementById('letterOutput').textContent = template;
+  localStorage.setItem(STORAGE_KEYS.LETTER, template);
+});
+
+document.getElementById('copyLetterBtn').addEventListener('click', () => {
+  const text = document.getElementById('letterOutput').textContent;
+  navigator.clipboard.writeText(text).then(() => alert('Skopiowano do schowka!'));
+});
+
+/* ---------------------------------------------------------------------
+   10. CHECKLIST EMIGRACYJNA
+   --------------------------------------------------------------------- */
+function renderChecklist(){
+  const wrap = document.getElementById('checklistContainer');
+  wrap.innerHTML = '';
+  state.checklist.forEach((cat, catIdx) => {
+    const doneCount = cat.items.filter(i => i.checked).length;
+    const catDiv = document.createElement('div');
+    catDiv.className = 'card checklist-cat';
+    catDiv.innerHTML = `
+      <h3>${escapeHtml(cat.category)} <span class="cat-progress">${doneCount}/${cat.items.length}</span></h3>
+      <div class="check-items"></div>
+      <div class="add-item-row">
+        <input type="text" placeholder="Dodaj własny punkt..." data-newitem="${catIdx}">
+        <button class="btn secondary small" data-addcat="${catIdx}">Dodaj</button>
+      </div>
+    `;
+    const itemsWrap = catDiv.querySelector('.check-items');
+    cat.items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'check-item' + (item.checked ? ' checked' : '');
+      row.innerHTML = `
+        <input type="checkbox" id="chk_${item.id}" ${item.checked ? 'checked' : ''}>
+        <label for="chk_${item.id}">${escapeHtml(item.label)}</label>
+        ${item.custom ? `<button class="del-item" data-delitem="${item.id}">✕</button>` : ''}
+      `;
+      row.querySelector('input').addEventListener('change', (e) => {
+        item.checked = e.target.checked;
+        saveChecklist();
+        renderChecklist();
+      });
+      const delBtn = row.querySelector('[data-delitem]');
+      if(delBtn){
+        delBtn.addEventListener('click', () => {
+          cat.items = cat.items.filter(i => i.id !== item.id);
+          saveChecklist();
+          renderChecklist();
+        });
+      }
+      itemsWrap.appendChild(row);
+    });
+    wrap.appendChild(catDiv);
+  });
+
+  wrap.querySelectorAll('[data-addcat]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = wrap.querySelector(`[data-newitem="${btn.dataset.addcat}"]`);
+      const label = input.value.trim();
+      if(!label) return;
+      const cat = state.checklist[btn.dataset.addcat];
+      cat.items.push({ id: 'custom_' + Date.now(), label, checked:false, custom:true });
+      saveChecklist();
+      renderChecklist();
+    });
+  });
+}
+
+/* ---------------------------------------------------------------------
+   11. TRACKER APLIKACJI (KANBAN + drag & drop)
+   --------------------------------------------------------------------- */
+const KANBAN_COLUMNS = [
+  { id:'todo', label:'Do wysłania' },
+  { id:'sent', label:'Wysłane' },
+  { id:'reply', label:'Odpowiedź' },
+  { id:'interview', label:'Rozmowa' },
+  { id:'offer', label:'Oferta' },
+];
+
+function renderKanban(){
+  const board = document.getElementById('kanbanBoard');
+  board.innerHTML = '';
+  KANBAN_COLUMNS.forEach(col => {
+    const colDiv = document.createElement('div');
+    colDiv.className = 'kanban-col';
+    colDiv.dataset.status = col.id;
+    const items = state.tracker.filter(a => a.status === col.id);
+    colDiv.innerHTML = `
+      <h4>${col.label} <span class="count">${items.length}</span></h4>
+      <div class="kanban-cards"></div>
+    `;
+    const cardsWrap = colDiv.querySelector('.kanban-cards');
+    if(items.length === 0){
+      cardsWrap.innerHTML = '<div class="kanban-empty">Brak aplikacji</div>';
+    }
+    items.forEach(app => {
+      const card = document.createElement('div');
+      card.className = 'kanban-card';
+      card.draggable = true;
+      card.dataset.appId = app.id;
+      card.innerHTML = `
+        <div class="k-name">${escapeHtml(app.employerName)}</div>
+        <div class="k-meta">${escapeHtml(app.industry)} · ${escapeHtml(app.region)}</div>
+        <div class="k-actions">
+          <button data-remove-app="${app.id}">Usuń</button>
+        </div>
+      `;
+      card.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', app.id);
+        setTimeout(() => card.style.opacity = '.4', 0);
+      });
+      card.addEventListener('dragend', () => card.style.opacity = '1');
+      cardsWrap.appendChild(card);
+    });
+    // drag over / drop handlers na kolumnie
+    colDiv.addEventListener('dragover', (e) => { e.preventDefault(); colDiv.classList.add('drag-over'); });
+    colDiv.addEventListener('dragleave', () => colDiv.classList.remove('drag-over'));
+    colDiv.addEventListener('drop', (e) => {
+      e.preventDefault();
+      colDiv.classList.remove('drag-over');
+      const appId = e.dataTransfer.getData('text/plain');
+      const app = state.tracker.find(a => a.id === appId);
+      if(app){ app.status = col.id; saveTracker(); renderKanban(); }
+    });
+    board.appendChild(colDiv);
+  });
+
+  board.querySelectorAll('[data-remove-app]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.tracker = state.tracker.filter(a => a.id !== btn.dataset.removeApp);
+      saveTracker();
+      renderKanban();
+    });
+  });
+}
+
+/* ---------------------------------------------------------------------
+   12. KALKULATOR NETTO / BRUTTO (uproszczony model norweskiego podatku)
+   Uwaga: model demonstracyjny — realny system podatkowy w Norwegii jest
+   bardziej złożony (skattekort, ulgi, fradrag, komunalne różnice itd.)
+   --------------------------------------------------------------------- */
+function estimateNorwegianTax(grossMonthly){
+  const grossAnnual = grossMonthly * 12;
+
+  // Minstefradrag: 46% dochodu, maksymalnie ok. 112 000 NOK/rok
+  const minstefradrag = Math.min(grossAnnual * 0.46, 112000);
+  // Personfradrag (kwota wolna) ok. 88 250 NOK/rok
+  const personfradrag = 88250;
+  const alminneligInntektBase = Math.max(grossAnnual - minstefradrag - personfradrag, 0);
+  const alminneligInntektTax = alminneligInntektBase * 0.22;
+
+  // Trygdeavgift (składka na ubezpieczenie społeczne) 7.9% dochodu z pracy
+  const trygdeavgiftThreshold = 99650;
+  const trygdeavgift = grossAnnual > trygdeavgiftThreshold ? grossAnnual * 0.079 : 0;
+
+  // Trinnskatt — progresywny podatek stopniowy (progi roczne, przybliżone)
+  const brackets = [
+    { limit: 208050, rate: 0 },
+    { limit: 292850, rate: 0.017 },
+    { limit: 670000, rate: 0.04 },
+    { limit: 937900, rate: 0.136 },
+    { limit: 1350000, rate: 0.166 },
+    { limit: Infinity, rate: 0.176 },
+  ];
+  let trinnskatt = 0, lower = 0;
+  for(const b of brackets){
+    if(grossAnnual > lower){
+      const taxableInBracket = Math.min(grossAnnual, b.limit) - lower;
+      trinnskatt += taxableInBracket * b.rate;
+      lower = b.limit;
+    } else break;
+  }
+
+  const totalTaxAnnual = alminneligInntektTax + trygdeavgift + trinnskatt;
+  const netAnnual = grossAnnual - totalTaxAnnual;
+
+  return {
+    grossMonthly,
+    netMonthly: netAnnual / 12,
+    totalTaxMonthly: totalTaxAnnual / 12,
+    effectiveRate: grossAnnual ? (totalTaxAnnual / grossAnnual) * 100 : 0,
+    breakdown: {
+      alminneligInntektTax: alminneligInntektTax / 12,
+      trygdeavgift: trygdeavgift / 12,
+      trinnskatt: trinnskatt / 12,
+    }
+  };
+}
+
+function renderCalcResult(gross, targetId){
+  const el = document.getElementById(targetId);
+  if(!gross || gross <= 0){ el.innerHTML = ''; return; }
+  const r = estimateNorwegianTax(gross);
+  el.innerHTML = `
+    <div class="big">${r.netMonthly.toLocaleString('pl-PL', {maximumFractionDigits:0})} NOK</div>
+    <div class="line"><span>Netto / miesiąc</span><span>${r.netMonthly.toLocaleString('pl-PL',{maximumFractionDigits:0})} NOK</span></div>
+    <div class="line"><span>Podatek łącznie / miesiąc</span><span>${r.totalTaxMonthly.toLocaleString('pl-PL',{maximumFractionDigits:0})} NOK</span></div>
+    <div class="line"><span>Efektywna stawka podatkowa</span><span>${r.effectiveRate.toFixed(1)}%</span></div>
+    <div class="line"><span>— w tym podatek 22%</span><span>${r.breakdown.alminneligInntektTax.toLocaleString('pl-PL',{maximumFractionDigits:0})} NOK</span></div>
+    <div class="line"><span>— w tym trygdeavgift 7.9%</span><span>${r.breakdown.trygdeavgift.toLocaleString('pl-PL',{maximumFractionDigits:0})} NOK</span></div>
+    <div class="line"><span>— w tym trinnskatt</span><span>${r.breakdown.trinnskatt.toLocaleString('pl-PL',{maximumFractionDigits:0})} NOK</span></div>
+  `;
+}
+
+document.getElementById('calcGrossA').addEventListener('input', (e) => renderCalcResult(parseFloat(e.target.value), 'calcResultA'));
+document.getElementById('calcGrossB').addEventListener('input', (e) => renderCalcResult(parseFloat(e.target.value), 'calcResultB'));
+
+/* ---------------------------------------------------------------------
+   13. INICJALIZACJA
+   --------------------------------------------------------------------- */
+function init(){
+  loadState();
+  populateMapFilters();
+  renderMapPins();
+  bindCvPersonalInputs();
+  loadCvIntoForm();
+  renderCvPreview();
+  renderChecklist();
+  renderKanban();
+  renderDashboard();
+  switchView('dashboard');
+}
+
+init();
+</script>
+</body>
+</html>
