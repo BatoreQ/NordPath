@@ -82,6 +82,12 @@ a{ color: var(--teal); }
 .nav-item .ic{ font-size:1.1rem; width:1.4rem; text-align:center; }
 .nav-item:hover{ background: rgba(255,255,255,.08); color:#fff; }
 .nav-item.active{ background: var(--teal); color:#fff; box-shadow: var(--shadow); }
+.nav-item{ position:relative; }
+.nav-badge{
+  position:absolute; right:.7rem; top:50%; transform:translateY(-50%);
+  background: var(--red); color:#fff; font-size:.68rem; font-weight:700;
+  min-width:18px; height:18px; border-radius:20px; display:flex; align-items:center; justify-content:center; padding:0 5px;
+}
 
 .sidebar-footer{
   padding: 1rem 1.2rem; font-size:.72rem; color:#82a0b9;
@@ -303,6 +309,55 @@ a{ color: var(--teal); }
 .calc-result .line{ display:flex; justify-content:space-between; font-size:.85rem; color:var(--ink-soft); padding:.15rem 0; }
 .calc-note{ font-size:.75rem; color:var(--ink-soft); margin-top:.8rem; }
 
+/* ---------- Toast notifications ---------- */
+.toast-stack{
+  position:fixed; bottom:1.2rem; right:1.2rem; z-index:200; display:flex; flex-direction:column; gap:.6rem; max-width:320px;
+}
+.toast{
+  background: var(--navy-dark); color:#fff; padding:.75rem 1rem; border-radius:8px; box-shadow: var(--shadow-lg);
+  font-size:.85rem; line-height:1.4; animation: toastIn .2s ease; display:flex; gap:.5rem; align-items:flex-start;
+}
+.toast.success{ background: var(--teal); }
+.toast.error{ background: var(--red); }
+@keyframes toastIn{ from{ opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
+
+/* ---------- Email compose modal ---------- */
+.compose-field{ margin-bottom:.7rem; }
+.compose-field label{ font-size:.78rem; color:var(--ink-soft); font-weight:600; display:block; margin-bottom:.25rem; }
+.compose-field input, .compose-field textarea{
+  width:100%; padding:.5rem .6rem; border:1px solid var(--border); border-radius:7px; background:#fff;
+}
+.compose-field textarea{ min-height:180px; resize:vertical; }
+.compose-attachment{
+  display:inline-flex; align-items:center; gap:.4rem; background:#eef4f8; color:var(--navy);
+  font-size:.78rem; font-weight:600; padding:.35rem .7rem; border-radius:8px; margin-bottom:.8rem;
+}
+
+/* ---------- Wiadomości (symulowana skrzynka) ---------- */
+.messages-toolbar{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.7rem; margin-bottom:1rem; }
+.message-item{
+  background:#fff; border:1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding:1rem 1.2rem; margin-bottom:.7rem; cursor:pointer; transition: box-shadow .12s;
+}
+.message-item:hover{ box-shadow: var(--shadow-lg); }
+.message-item.unread{ border-left:4px solid var(--teal); }
+.message-head{ display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; }
+.message-head .m-from{ font-weight:700; color:var(--navy); }
+.message-head .m-date{ font-size:.75rem; color:var(--ink-soft); white-space:nowrap; }
+.message-subject{ font-size:.9rem; font-weight:600; margin:.15rem 0; }
+.message-snippet{ font-size:.82rem; color:var(--ink-soft); }
+.message-body{ display:none; white-space:pre-wrap; font-size:.87rem; line-height:1.6; margin-top:.8rem; padding-top:.8rem; border-top:1px dashed var(--border); }
+.message-item.expanded .message-body{ display:block; }
+.message-cat{ display:inline-block; font-size:.7rem; font-weight:700; padding:.15rem .55rem; border-radius:20px; margin-top:.3rem; }
+.message-cat.reply{ background:#e5f0fa; color:#2d5f8a; }
+.message-cat.interview{ background:#fff3d6; color:#8a6a1a; }
+.message-cat.offer{ background:#e2f6ee; color:#1c7a53; }
+.message-cat.rejection{ background:#fbe6e6; color:#a13030; }
+.messages-empty{ text-align:center; color:var(--ink-soft); padding:3rem 1rem; }
+
+.kanban-card.rejected{ opacity:.55; border-left-color:#c3ccd4; }
+.kanban-card .k-tag-rejected{ display:inline-block; font-size:.68rem; font-weight:700; color:var(--red); background:#fbe6e6; padding:.1rem .5rem; border-radius:20px; margin-top:.3rem; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 860px){
   .sidebar{ display:none; }
@@ -336,6 +391,7 @@ a{ color: var(--teal); }
       <li><button class="nav-item" data-view="letter"><span class="ic">✉️</span> List motywacyjny</button></li>
       <li><button class="nav-item" data-view="checklist"><span class="ic">✅</span> Checklist emigracyjna</button></li>
       <li><button class="nav-item" data-view="tracker"><span class="ic">📋</span> Tracker aplikacji</button></li>
+      <li><button class="nav-item" data-view="messages"><span class="ic">📥</span> Wiadomości<span class="nav-badge" id="navMsgBadge" style="display:none;">0</span></button></li>
       <li><button class="nav-item" data-view="calculator"><span class="ic">💰</span> Kalkulator netto/brutto</button></li>
     </ul>
     <div class="sidebar-footer">DEMO v0.1 · dane lokalne w przeglądarce</div>
@@ -372,6 +428,7 @@ a{ color: var(--teal); }
           <button class="tile" data-view="letter"><span class="tile-ic">✉️</span><h3>List motywacyjny</h3><p>Wygeneruj szablon na podstawie ogłoszenia.</p></button>
           <button class="tile" data-view="checklist"><span class="tile-ic">✅</span><h3>Checklist emigracyjna</h3><p>Dokumenty, formalności, finanse, mieszkanie.</p></button>
           <button class="tile" data-view="tracker"><span class="tile-ic">📋</span><h3>Tracker aplikacji</h3><p>Zarządzaj procesem rekrutacji jak Kanban.</p></button>
+          <button class="tile" data-view="messages"><span class="tile-ic">📥</span><h3>Wiadomości</h3><p>Odpowiedzi od pracodawców, automatycznie posegregowane.</p></button>
           <button class="tile" data-view="calculator"><span class="tile-ic">💰</span><h3>Kalkulator netto/brutto</h3><p>Oszacuj wynagrodzenie na rękę.</p></button>
         </div>
 
@@ -384,6 +441,10 @@ a{ color: var(--teal); }
           <div class="card stat-card">
             <div class="stat-ic">🎯</div>
             <div><div class="stat-num" id="statOffers">0</div><div class="stat-label">ofert pracy otrzymanych</div></div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-ic">📥</div>
+            <div><div class="stat-num" id="statUnreadMsgs">0</div><div class="stat-label">nowych wiadomości</div></div>
           </div>
           <div class="card stat-card">
             <div class="stat-ic">📄</div>
@@ -529,6 +590,20 @@ a{ color: var(--teal); }
         <div class="kanban" id="kanbanBoard"><!-- rendered by JS --></div>
       </section>
 
+      <!-- ============================ WIADOMOŚCI (symulowana skrzynka) ============================ -->
+      <section class="view" id="view-messages">
+        <div class="view-header">
+          <h1>Wiadomości</h1>
+          <p class="subtitle">Odpowiedzi od pracodawców trafiają tutaj i automatycznie przesuwają aplikacje w Trackerze.</p>
+        </div>
+        <!-- UWAGA: to symulacja demo — prawdziwy odbiór poczty wymaga backendu (IMAP/webhook), którego celowo tu nie ma. -->
+        <div class="messages-toolbar">
+          <span style="color:var(--ink-soft); font-size:.85rem;" id="messagesSummary">Brak wiadomości.</span>
+          <button class="btn teal" id="simulateReplyBtn">🔄 Zasymuluj nową odpowiedź</button>
+        </div>
+        <div id="messagesContainer"><!-- rendered by JS --></div>
+      </section>
+
       <!-- ============================ KALKULATOR ============================ -->
       <section class="view" id="view-calculator">
         <div class="view-header">
@@ -563,6 +638,23 @@ a{ color: var(--teal); }
   </div>
 </div>
 
+<!-- Modal do "wysyłki" e-maila z CV/listem motywacyjnym (symulacja, bez backendu) -->
+<div class="modal-backdrop" id="composeModalBackdrop">
+  <div class="modal-box" style="max-width:520px;">
+    <button class="modal-close" id="composeModalClose">✕</button>
+    <h3>✉️ Wyślij aplikację e-mailem</h3>
+    <div class="compose-field"><label>Do</label><input type="text" id="composeTo" readonly></div>
+    <div class="compose-field"><label>Temat</label><input type="text" id="composeSubject"></div>
+    <div class="compose-attachment">📎 <span id="composeAttachmentName">CV.pdf</span></div>
+    <div class="compose-field"><label>Treść wiadomości</label><textarea id="composeBody"></textarea></div>
+    <button class="btn teal" id="composeSendBtn">🚀 Wyślij</button>
+    <p style="font-size:.72rem; color:var(--ink-soft); margin-top:.6rem;">To demo — wiadomość nie opuszcza przeglądarki (brak podpiętego backendu pocztowego).</p>
+  </div>
+</div>
+
+<!-- Kontener na powiadomienia typu "toast" -->
+<div class="toast-stack" id="toastStack"></div>
+
 <script>
 /* =========================================================================
    NordPath — logika aplikacji (demo, bez backendu)
@@ -578,6 +670,8 @@ const STORAGE_KEYS = {
   CHECKLIST: 'nordpath_checklist',   // DB: table `checklist_items`
   TRACKER: 'nordpath_applications',  // DB: table `applications`
   LETTER: 'nordpath_last_letter',    // DB: table `cover_letters`
+  MESSAGES: 'nordpath_messages',     // DB: table `inbox_messages`
+  SENT_EMAILS: 'nordpath_sent_emails', // DB: table `sent_emails`
 };
 
 /* ---------------------------------------------------------------------
@@ -646,12 +740,16 @@ let state = {
   cv: null,          // DB: cv_profiles row
   checklist: null,   // DB: checklist_items rows (pogrupowane po category)
   tracker: [],        // DB: applications rows
+  messages: [],       // DB: inbox_messages rows
+  sentEmails: [],     // DB: sent_emails rows
 };
 
 function loadState(){
   state.cv = JSON.parse(localStorage.getItem(STORAGE_KEYS.CV)) || defaultCv();
   state.checklist = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHECKLIST)) || structuredCloneChecklist();
   state.tracker = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRACKER)) || [];
+  state.messages = JSON.parse(localStorage.getItem(STORAGE_KEYS.MESSAGES)) || [];
+  state.sentEmails = JSON.parse(localStorage.getItem(STORAGE_KEYS.SENT_EMAILS)) || [];
 }
 function structuredCloneChecklist(){
   return DEFAULT_CHECKLIST.map((cat,ci) => ({
@@ -671,6 +769,20 @@ function defaultCv(){
 function saveCv(){ localStorage.setItem(STORAGE_KEYS.CV, JSON.stringify(state.cv)); renderDashboard(); }
 function saveChecklist(){ localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(state.checklist)); renderDashboard(); }
 function saveTracker(){ localStorage.setItem(STORAGE_KEYS.TRACKER, JSON.stringify(state.tracker)); renderDashboard(); }
+function saveMessages(){ localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(state.messages)); renderDashboard(); renderNavBadge(); }
+function saveSentEmails(){ localStorage.setItem(STORAGE_KEYS.SENT_EMAILS, JSON.stringify(state.sentEmails)); }
+
+/* ---------------------------------------------------------------------
+   TOAST — lekki system powiadomień zastępujący alert()
+   --------------------------------------------------------------------- */
+function showToast(message, type){
+  const stack = document.getElementById('toastStack');
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' ' + type : '');
+  el.textContent = message;
+  stack.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .25s'; setTimeout(() => el.remove(), 250); }, 3200);
+}
 
 /* ---------------------------------------------------------------------
    5. NAWIGACJA / ROUTING SPA
@@ -687,7 +799,15 @@ function switchView(viewName){
   if(viewName === 'checklist') renderChecklist();
   if(viewName === 'tracker') renderKanban();
   if(viewName === 'cv') renderCvPreview();
+  if(viewName === 'messages') renderMessages();
   if(viewName === 'dashboard') renderDashboard();
+}
+
+function renderNavBadge(){
+  const unread = state.messages.filter(m => !m.read).length;
+  const badge = document.getElementById('navMsgBadge');
+  badge.textContent = unread;
+  badge.style.display = unread > 0 ? 'flex' : 'none';
 }
 
 document.querySelectorAll('[data-view]').forEach(el => {
@@ -715,6 +835,7 @@ function renderDashboard(){
 
   document.getElementById('statTrackerCount').textContent = state.tracker.length;
   document.getElementById('statOffers').textContent = state.tracker.filter(a => a.status === 'offer').length;
+  document.getElementById('statUnreadMsgs').textContent = state.messages.filter(m => !m.read).length;
 
   const cvFilled = state.cv.personal.firstName && state.cv.personal.lastName && state.cv.personal.email;
   document.getElementById('statCvStatus').textContent = cvFilled ? 'Uzupełnione' : 'Do uzupełnienia';
@@ -764,7 +885,10 @@ function showEmployerDetails(id){
     <div class="tag">${e.industry}</div>
     <div class="tag">🗣️ ${e.language}</div>
     <p style="margin-top:.9rem;">${e.description}</p>
-    <button class="btn teal" data-add-tracker="${e.id}">+ Dodaj do trackera</button>
+    <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+      <button class="btn teal" data-add-tracker="${e.id}">+ Dodaj do trackera</button>
+      <button class="btn secondary" data-send-email="${e.id}">✉️ Wyślij CV mailem</button>
+    </div>
   `;
   // Panel boczny (desktop)
   document.getElementById('employerPanel').innerHTML = html;
@@ -776,6 +900,9 @@ function showEmployerDetails(id){
   document.querySelectorAll('[data-add-tracker]').forEach(btn => {
     btn.addEventListener('click', () => addEmployerToTracker(btn.dataset.addTracker));
   });
+  document.querySelectorAll('[data-send-email]').forEach(btn => {
+    btn.addEventListener('click', () => openComposeModal(btn.dataset.sendEmail));
+  });
 }
 
 document.getElementById('employerModalClose').addEventListener('click', () => {
@@ -785,25 +912,37 @@ document.getElementById('employerModalBackdrop').addEventListener('click', (ev) 
   if(ev.target.id === 'employerModalBackdrop') ev.currentTarget.classList.remove('show');
 });
 
+function getOrCreateTrackerEntry(employerId){
+  const e = EMPLOYERS.find(x => x.id === employerId);
+  if(!e) return null;
+  let app = state.tracker.find(a => a.employerId === employerId);
+  if(!app){
+    app = {
+      id: 'app_' + Date.now() + '_' + Math.round(Math.random()*1000), // DB: applications.id
+      employerId: e.id,             // DB: applications.employer_id (FK)
+      employerName: e.name,
+      industry: e.industry,
+      region: e.region,
+      status: 'todo',               // DB: enum todo|sent|reply|interview|offer
+      rejected: false,
+      createdAt: new Date().toISOString(),
+    };
+    state.tracker.push(app);
+  }
+  return app;
+}
+
 function addEmployerToTracker(employerId){
   const e = EMPLOYERS.find(x => x.id === employerId);
   if(!e) return;
   const alreadyAdded = state.tracker.some(a => a.employerId === employerId);
   if(alreadyAdded){
-    alert(`${e.name} jest już w Twoim trackerze.`);
+    showToast(`${e.name} jest już w Twoim trackerze.`);
     return;
   }
-  state.tracker.push({
-    id: 'app_' + Date.now(),      // DB: applications.id
-    employerId: e.id,             // DB: applications.employer_id (FK)
-    employerName: e.name,
-    industry: e.industry,
-    region: e.region,
-    status: 'todo',               // DB: enum todo|sent|reply|interview|offer
-    createdAt: new Date().toISOString(),
-  });
+  getOrCreateTrackerEntry(employerId);
   saveTracker();
-  alert(`Dodano ${e.name} do trackera (kolumna "Do wysłania").`);
+  showToast(`Dodano ${e.name} do trackera (kolumna "Do wysłania").`, 'success');
 }
 
 /* ---------------------------------------------------------------------
@@ -1010,20 +1149,18 @@ document.getElementById('downloadPdfBtn').addEventListener('click', () => window
 /* ---------------------------------------------------------------------
    9. GENERATOR LISTU MOTYWACYJNEGO (statyczny szablon — bez AI)
    --------------------------------------------------------------------- */
-document.getElementById('generateLetterBtn').addEventListener('click', () => {
-  const company = document.getElementById('letterCompany').value.trim() || 'Państwa firmy';
-  const jobDesc = document.getElementById('letterJobDesc').value.trim();
+// TODO: podpiąć Gemini API — wysłać jobDesc + dane z CV i wygenerować
+// spersonalizowaną treść listu zamiast statycznego szablonu poniżej.
+function buildCoverLetterText(company, jobDesc){
   const p = state.cv.personal;
   const fullName = `${p.firstName || 'Imię'} ${p.lastName || 'Nazwisko'}`;
   const role = p.role || 'wskazane w ogłoszeniu stanowisko';
   const topSkill = (state.cv.skills || '').split(',').map(s=>s.trim()).filter(Boolean)[0] || 'moje kompetencje zawodowe';
   const topLang = state.cv.languages[0] ? `${state.cv.languages[0].name} (${state.cv.languages[0].level})` : 'język angielski';
 
-  // TODO: podpiąć Gemini API — wysłać jobDesc + dane z CV i wygenerować
-  // spersonalizowaną treść listu zamiast statycznego szablonu poniżej.
-  const template = `Szanowni Państwo,
+  return `Szanowni Państwo,
 
-z dużym zainteresowaniem zapoznałem/-am się z ofertą pracy na stanowisko ${role} w ${company}. Pragnę zgłosić swoją kandydaturę, ponieważ moje doświadczenie i umiejętności odpowiadają wymaganiom przedstawionym w ogłoszeniu${jobDesc ? ':\n\n"' + jobDesc.slice(0,220) + (jobDesc.length>220 ? '...' : '') + '"\n' : '.'}
+z dużym zainteresowaniem zapoznałem/-am się z ofertą pracy na stanowisko ${role} w ${company || 'Państwa firmie'}. Pragnę zgłosić swoją kandydaturę, ponieważ moje doświadczenie i umiejętności odpowiadają wymaganiom przedstawionym w ogłoszeniu${jobDesc ? ':\n\n"' + jobDesc.slice(0,220) + (jobDesc.length>220 ? '...' : '') + '"\n' : '.'}
 Posiadam doświadczenie zawodowe w obszarach wskazanych w moim CV, w tym w zakresie: ${topSkill}. Znam również ${topLang}, co pozwoli mi na sprawną komunikację w środowisku pracy w Norwegii.
 
 Jestem osobą zmotywowaną, odpowiedzialną i otwartą na nowe wyzwania związane z przeprowadzką i pracą za granicą. Chętnie opowiem więcej o swoim doświadczeniu podczas rozmowy kwalifikacyjnej.
@@ -1031,14 +1168,91 @@ Jestem osobą zmotywowaną, odpowiedzialną i otwartą na nowe wyzwania związan
 Z poważaniem,
 ${fullName}
 ${p.email || ''} ${p.phone ? '· ' + p.phone : ''}`;
+}
 
+document.getElementById('generateLetterBtn').addEventListener('click', () => {
+  const company = document.getElementById('letterCompany').value.trim();
+  const jobDesc = document.getElementById('letterJobDesc').value.trim();
+  const template = buildCoverLetterText(company, jobDesc);
   document.getElementById('letterOutput').textContent = template;
   localStorage.setItem(STORAGE_KEYS.LETTER, template);
+  showToast('List motywacyjny wygenerowany.', 'success');
 });
 
 document.getElementById('copyLetterBtn').addEventListener('click', () => {
   const text = document.getElementById('letterOutput').textContent;
-  navigator.clipboard.writeText(text).then(() => alert('Skopiowano do schowka!'));
+  if(!text || text === 'Twój wygenerowany list pojawi się tutaj...'){
+    showToast('Najpierw wygeneruj list.', 'error');
+    return;
+  }
+  navigator.clipboard.writeText(text).then(() => showToast('Skopiowano do schowka!', 'success'));
+});
+
+/* ---------------------------------------------------------------------
+   9B. WYSYŁKA APLIKACJI E-MAILEM (symulacja — bez backendu)
+   W realnej wersji (Next.js + Supabase) ten krok wywoła Edge Function,
+   która wyśle e-mail przez np. Resend/SendGrid i zapisze rekord w tabeli
+   `sent_emails`. Tutaj tylko zapisujemy zdarzenie lokalnie i "udajemy".
+   --------------------------------------------------------------------- */
+let composeEmployerId = null;
+
+function slugifyCompanyDomain(name){
+  return name.toLowerCase()
+    .replace(/\bas\b/g,'')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'') // usuń znaki diakrytyczne
+    .replace(/[^a-z0-9]+/g,'') || 'firma';
+}
+function makeEmployerEmail(name){ return `rekrutacja@${slugifyCompanyDomain(name)}.no`; }
+
+function openComposeModal(employerId){
+  const e = EMPLOYERS.find(x => x.id === employerId);
+  if(!e) return;
+  composeEmployerId = employerId;
+  const p = state.cv.personal;
+  const fullName = `${p.firstName || 'Imię'} ${p.lastName || 'Nazwisko'}`;
+  document.getElementById('composeTo').value = makeEmployerEmail(e.name);
+  document.getElementById('composeSubject').value = `Aplikacja na stanowisko ${p.role || 'oferowane w ' + e.name} – ${fullName}`;
+  document.getElementById('composeAttachmentName').textContent = (p.firstName || p.lastName)
+    ? `CV_${(p.firstName||'')}_${(p.lastName||'')}.pdf`.replace(/^_|_+/g,'_')
+    : 'CV.pdf';
+  document.getElementById('composeBody').value = buildCoverLetterText(e.name, '');
+  document.getElementById('composeModalBackdrop').classList.add('show');
+}
+function closeComposeModal(){
+  document.getElementById('composeModalBackdrop').classList.remove('show');
+  composeEmployerId = null;
+}
+document.getElementById('composeModalClose').addEventListener('click', closeComposeModal);
+document.getElementById('composeModalBackdrop').addEventListener('click', (ev) => {
+  if(ev.target.id === 'composeModalBackdrop') closeComposeModal();
+});
+
+document.getElementById('composeSendBtn').addEventListener('click', () => {
+  if(!composeEmployerId) return;
+  const e = EMPLOYERS.find(x => x.id === composeEmployerId);
+  const to = document.getElementById('composeTo').value.trim();
+  const subject = document.getElementById('composeSubject').value.trim();
+  const body = document.getElementById('composeBody').value.trim();
+  if(!subject || !body){
+    showToast('Uzupełnij temat i treść wiadomości przed wysłaniem.', 'error');
+    return;
+  }
+
+  state.sentEmails.push({
+    id: 'mail_' + Date.now(),      // DB: sent_emails.id
+    employerId: composeEmployerId, // DB: sent_emails.employer_id (FK)
+    employerName: e.name,
+    to, subject, body,
+    sentAt: new Date().toISOString(),
+  });
+  saveSentEmails();
+
+  const app = getOrCreateTrackerEntry(composeEmployerId);
+  if(app.status === 'todo') app.status = 'sent';
+  saveTracker();
+
+  closeComposeModal();
+  showToast(`✅ E-mail do ${e.name} "wysłany". Aplikacja przeniesiona do kolumny „Wysłane”.`, 'success');
 });
 
 /* ---------------------------------------------------------------------
@@ -1128,13 +1342,15 @@ function renderKanban(){
     }
     items.forEach(app => {
       const card = document.createElement('div');
-      card.className = 'kanban-card';
+      card.className = 'kanban-card' + (app.rejected ? ' rejected' : '');
       card.draggable = true;
       card.dataset.appId = app.id;
       card.innerHTML = `
         <div class="k-name">${escapeHtml(app.employerName)}</div>
         <div class="k-meta">${escapeHtml(app.industry)} · ${escapeHtml(app.region)}</div>
+        ${app.rejected ? '<span class="k-tag-rejected">Odrzucono</span>' : ''}
         <div class="k-actions">
+          <button data-send-app-email="${app.employerId}">✉️ Wyślij</button>
           <button data-remove-app="${app.id}">Usuń</button>
         </div>
       `;
@@ -1163,7 +1379,127 @@ function renderKanban(){
       state.tracker = state.tracker.filter(a => a.id !== btn.dataset.removeApp);
       saveTracker();
       renderKanban();
+      showToast('Usunięto aplikację z trackera.');
     });
+  });
+  board.querySelectorAll('[data-send-app-email]').forEach(btn => {
+    btn.addEventListener('click', () => openComposeModal(btn.dataset.sendAppEmail));
+  });
+}
+
+/* ---------------------------------------------------------------------
+   11B. WIADOMOŚCI — symulowana skrzynka odbiorcza + automatyczna segregacja
+   W realnej wersji odpowiedzi trafiałyby tu przez webhook skrzynki pocztowej
+   (np. SendGrid Inbound Parse) i wywoływały tę samą logikę klasyfikacji.
+   --------------------------------------------------------------------- */
+const MESSAGE_TEMPLATES = {
+  reply: {
+    label: 'Odpowiedź', column: 'reply',
+    subject: (co) => `Potwierdzenie otrzymania aplikacji – ${co}`,
+    body: (co, name) => `Dzień dobry ${name},\n\ndziękujemy za przesłanie aplikacji do ${co}. Potwierdzamy, że dokumenty dotarły i są aktualnie rozpatrywane przez nasz dział HR. Odezwiemy się z dalszymi informacjami w ciągu najbliższych dwóch tygodni.\n\nPozdrawiamy,\nZespół rekrutacyjny ${co}`,
+  },
+  interview: {
+    label: 'Zaproszenie na rozmowę', column: 'interview',
+    subject: (co) => `Zaproszenie na rozmowę kwalifikacyjną – ${co}`,
+    body: (co, name) => `Dzień dobry ${name},\n\nz przyjemnością informujemy, że Twoja aplikacja przeszła do kolejnego etapu rekrutacji w ${co}. Chcielibyśmy zaprosić Cię na rozmowę kwalifikacyjną (online, Teams) w przyszłym tygodniu. Prosimy o propozycję dogodnego terminu.\n\nPozdrawiamy,\nZespół rekrutacyjny ${co}`,
+  },
+  offer: {
+    label: 'Oferta pracy', column: 'offer',
+    subject: (co) => `Oferta pracy – ${co}`,
+    body: (co, name) => `Dzień dobry ${name},\n\nmamy przyjemność zaproponować Ci zatrudnienie w ${co}! Szczegóły oferty (wynagrodzenie brutto ok. ${(30000 + Math.round(Math.random()*20000))} NOK/mies., data rozpoczęcia, warunki) prześlemy w osobnej umowie. Prosimy o potwierdzenie zainteresowania w ciągu 5 dni roboczych.\n\nGratulacje!\nZespół rekrutacyjny ${co}`,
+  },
+  rejection: {
+    label: 'Odrzucenie', column: null,
+    subject: (co) => `Odpowiedź w sprawie rekrutacji – ${co}`,
+    body: (co, name) => `Dzień dobry ${name},\n\ndziękujemy za czas poświęcony na aplikację do ${co}. Niestety, po dokładnej analizie zgłoszeń, postanowiliśmy nie kontynuować dalszej rekrutacji w Twoim przypadku. Zachęcamy do śledzenia naszych przyszłych ofert.\n\nPozdrawiamy,\nZespół rekrutacyjny ${co}`,
+  },
+};
+
+function pickWeightedCategory(){
+  const roll = Math.random();
+  if(roll < 0.40) return 'reply';
+  if(roll < 0.65) return 'interview';
+  if(roll < 0.80) return 'offer';
+  return 'rejection';
+}
+
+document.getElementById('simulateReplyBtn').addEventListener('click', () => {
+  const candidates = state.tracker.filter(a => !a.rejected && a.status !== 'offer');
+  if(candidates.length === 0){
+    showToast('Najpierw wyślij aplikację do jakiejś firmy (Mapa → Wyślij CV mailem), aby móc otrzymać odpowiedź.', 'error');
+    return;
+  }
+  const app = candidates[Math.floor(Math.random() * candidates.length)];
+  const category = pickWeightedCategory();
+  const tpl = MESSAGE_TEMPLATES[category];
+  const applicantName = state.cv.personal.firstName || 'Kandydacie/Kandydatko';
+
+  const message = {
+    id: 'msg_' + Date.now(),          // DB: inbox_messages.id
+    employerId: app.employerId,       // DB: inbox_messages.employer_id (FK)
+    employerName: app.employerName,
+    applicationId: app.id,            // DB: inbox_messages.application_id (FK)
+    category,                          // DB: enum reply|interview|offer|rejection
+    subject: tpl.subject(app.employerName),
+    body: tpl.body(app.employerName, applicantName),
+    date: new Date().toISOString(),
+    read: false,
+  };
+  state.messages.unshift(message);
+  saveMessages();
+
+  // Automatyczna segregacja: przesuń kartę w Trackerze albo oznacz jako odrzuconą
+  if(tpl.column){
+    const statusOrder = ['todo','sent','reply','interview','offer'];
+    const currentIdx = statusOrder.indexOf(app.status);
+    const newIdx = statusOrder.indexOf(tpl.column);
+    if(newIdx > currentIdx) app.status = tpl.column; // nie cofamy karty
+  } else {
+    app.rejected = true;
+  }
+  saveTracker();
+
+  showToast(`📥 Nowa wiadomość od ${app.employerName}: „${tpl.label}”`, tpl.column === 'offer' ? 'success' : (category === 'rejection' ? 'error' : ''));
+  renderMessages();
+  renderKanban();
+});
+
+function renderMessages(){
+  const container = document.getElementById('messagesContainer');
+  const summary = document.getElementById('messagesSummary');
+  container.innerHTML = '';
+
+  if(state.messages.length === 0){
+    container.innerHTML = '<div class="messages-empty">📭 Brak wiadomości. Wyślij aplikacje i kliknij „Zasymuluj nową odpowiedź”, aby zobaczyć jak działa automatyczna segregacja.</div>';
+    summary.textContent = 'Brak wiadomości.';
+    return;
+  }
+
+  const unread = state.messages.filter(m => !m.read).length;
+  summary.textContent = `${state.messages.length} wiadomości, w tym ${unread} nieprzeczytanych.`;
+
+  state.messages.forEach(msg => {
+    const item = document.createElement('div');
+    item.className = 'message-item' + (msg.read ? '' : ' unread');
+    const tpl = MESSAGE_TEMPLATES[msg.category];
+    const dateStr = new Date(msg.date).toLocaleString('pl-PL', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    item.innerHTML = `
+      <div class="message-head">
+        <div>
+          <div class="m-from">${escapeHtml(msg.employerName)}</div>
+          <div class="message-subject">${escapeHtml(msg.subject)}</div>
+          <span class="message-cat ${msg.category}">${tpl.label}</span>
+        </div>
+        <div class="m-date">${dateStr}</div>
+      </div>
+      <div class="message-snippet">${escapeHtml(msg.body.slice(0,90))}...</div>
+      <div class="message-body">${escapeHtml(msg.body)}</div>
+    `;
+    item.addEventListener('click', () => {
+      item.classList.toggle('expanded');
+      if(!msg.read){ msg.read = true; saveMessages(); item.classList.remove('unread'); }
+    });
+    container.appendChild(item);
   });
 }
 
@@ -1250,6 +1586,8 @@ function init(){
   renderCvPreview();
   renderChecklist();
   renderKanban();
+  renderMessages();
+  renderNavBadge();
   renderDashboard();
   switchView('dashboard');
 }
